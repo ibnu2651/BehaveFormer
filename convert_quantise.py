@@ -8,6 +8,7 @@ from model.dataset import HUMITestDataset
 import os
 from torch.utils.data import DataLoader
 import json
+from evaluation.metrics import Metric
 
 model_fp32_path = "/home/i/ibnu2651/BehaveFormer/work_dirs/humi_scroll50down_imu100all_epoch500_enroll3_b128/20231026_155303/best_models/model_fp32.onnx"
 model_preprocess_path = "/home/i/ibnu2651/BehaveFormer/work_dirs/humi_scroll50down_imu100all_epoch500_enroll3_b128/20231026_155303/best_models/model_preprocess.onnx"
@@ -76,12 +77,12 @@ with torch.no_grad():
         out_onnx = ort_session.run(None, ort_inputs)[0]
         onnx_outputs.append(out_onnx)
 
-        break
         # print(outputs.cpu())
 
 
 pt_outputs = torch.cat(pt_outputs, dim=0)
 onnx_outputs = np.concatenate(onnx_outputs, axis=0)
+onnx_outputs = torch.from_numpy(onnx_outputs)
 
 torch.set_printoptions(precision=8)
 print("PyTorch outputs:", pt_outputs.shape)
@@ -89,6 +90,37 @@ print(pt_outputs)
 
 print("ONNX outputs:", onnx_outputs.shape)
 print(onnx_outputs)
+
+# Evaluate
+pt_outputs = pt_outputs.view(test_dataset.num_users, test_dataset.num_sessions, test_dataset.num_seqs, 64)
+onnx_quantised_outputs = onnx_outputs.view(test_dataset.num_users, test_dataset.num_sessions, test_dataset.num_seqs, 64)
+
+num_enroll_sessions = 3
+num_verify_sessions = 2
+
+pt_acc = []
+onnx_quantised_acc = []
+
+for i in range(pt_outputs.shape[0]):
+    all_ver_embeddings = torch.cat([pt_outputs[i,num_enroll_sessions:], torch.flatten(pt_outputs[:i,num_enroll_sessions:], start_dim=0, end_dim=1), torch.flatten(pt_outputs[i+1:,num_enroll_sessions:], start_dim=0, end_dim=1)], dim=0)
+    scores = Metric.cal_session_distance_fixed_sessions(all_ver_embeddings, pt_outputs[i,:num_enroll_sessions])
+
+    acc, threshold = Metric.eer_compute(scores[:num_verify_sessions], scores[num_verify_sessions:])
+
+    pt_acc.append(acc)
+
+    all_ver_embeddings = torch.cat([onnx_quantised_outputs[i,num_enroll_sessions:], torch.flatten(onnx_quantised_outputs[:i,num_enroll_sessions:], start_dim=0, end_dim=1), torch.flatten(onnx_quantised_outputs[i+1:,num_enroll_sessions:], start_dim=0, end_dim=1)], dim=0)
+    scores = Metric.cal_session_distance_fixed_sessions(all_ver_embeddings, onnx_quantised_outputs[i,:num_enroll_sessions])
+
+    acc, threshold = Metric.eer_compute(scores[:num_verify_sessions], scores[num_verify_sessions:])
+
+    onnx_quantised_acc.append(acc)
+
+
+print("Pytorch acc: ", 100 - np.mean(pt_acc, axis=0))
+print(pt_acc)
+print("ONNX quantised acc: ", 100 - np.mean(onnx_quantised_acc, axis=0))
+print(onnx_quantised_acc)
 
 
 # outs = pt_outputs[:5]
