@@ -25,10 +25,10 @@ hyperparams:
     warmup_epochs: 5
 
 folders: 
-    root_dir: "/home/kimngan/storage/code/BehaveFormer"
-    data_dir: "/data/kimngan/BehaveFormer/Humidb/scroll50downup_imu100all"
+    root_dir: "/home/i/ibnu2651/BehaveFormer"
+    data_dir: "/home/i/ibnu2651/BehaveFormer/Humidb2/scroll50downup_imu100all"
 
 data_split:  # this is set in the data preprocessing config and copied here
-    training: 298
-    validation: 65
-    testing: 65
+    training: 50
+    validation: 14
+    testing: 14

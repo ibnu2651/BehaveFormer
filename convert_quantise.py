@@ -2,45 +2,43 @@ import torch
 import numpy as np
 import onnx
 import onnxruntime as ort
+from onnxruntime.quantization import shape_inference, quantize_dynamic, QuantType, QuantFormat
 from model.behaveformer import BehaveFormer
 from model.dataset import HUMITestDataset
 import os
 from torch.utils.data import DataLoader
 import json
 
+model_fp32_path = "/home/i/ibnu2651/BehaveFormer/work_dirs/humi_scroll50down_imu100all_epoch500_enroll3_b128/20231026_155303/best_models/model_fp32.onnx"
+model_preprocess_path = "/home/i/ibnu2651/BehaveFormer/work_dirs/humi_scroll50down_imu100all_epoch500_enroll3_b128/20231026_155303/best_models/model_preprocess.onnx"
+model_int8_path = "/home/i/ibnu2651/BehaveFormer/work_dirs/humi_scroll50down_imu100all_epoch500_enroll3_b128/20231026_155303/best_models/model_int8.onnx"
+
+# Preprocess
+# shape_inference.quant_pre_process(input_model=model_fp32_path, output_model_path=model_int8_path, skip_symbolic_shape=False)
+
+# Quantise
+# quantised_model = quantize_dynamic(model_fp32_path, model_int8_path, weight_type=QuantType.QUInt8)
+
+# Test
+
+# Setup pytorhc model
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 model = BehaveFormer(8, 36, 50, 100, 64, 20, 4, 10, 6, 10, "acc_gyr_mag")
 model.load_state_dict(torch.load("/home/i/ibnu2651/BehaveFormer/work_dirs/humi_scroll50down_imu100all_epoch500_enroll3_b128/20231026_155303/best_models/epoch_210_eer_2.60817307692308.pt", map_location=torch.device("cpu"), weights_only=True))
 model.to(device).eval()
+# onnx_model_test = onnx.load(model_fp32_path)
+# print({n.op_type for n in onnx_model_test.graph.node})
 
-onnx_path = "/home/i/ibnu2651/BehaveFormer/work_dirs/humi_scroll50down_imu100all_epoch500_enroll3_b128/20231026_155303/best_models/model.onnx"
-ort_session = ort.InferenceSession(onnx_path, providers=["CPUExecutionProvider"])
+# onnx_model_test = onnx.load(model_int8_path)
+# print({n.op_type for n in onnx_model_test.graph.node})
 
-
-dummy_input = ([torch.rand(64, 50, 8), torch.rand(64, 100, 36)],)
-
-# onnx_model = torch.onnx.export(
-#     model,
-#     dummy_input,
-#     onnx_path,
-#     input_names=["behave_inputs", "imu_inputs"],
-#     output_names=["output"],
-#     dynamic_axes={
-#         "behave_inputs": {0: "batch"},
-#         "imu_inputs":    {0: "batch"},
-#         "output":        {0: "batch"},
-#     },
-# )
-
-
-# onnx_model_test = onnx.load(onnx_path)
-# onnx.checker.check_model(onnx_model_test)
+ort_session = ort.InferenceSession(model_int8_path, providers=["CPUExecutionProvider"])
 
 test_dataset = HUMITestDataset(action='down', 
                                 validation_file=os.path.join('/home/i/ibnu2651/BehaveFormer/Humidb/scroll50downup_imu100all', 'testing_scroll_imu_data_all.pickle'),
                                 imu_type='acc_gyr_mag')
-test_dataloader = DataLoader(test_dataset, batch_size=5)
+test_dataloader = DataLoader(test_dataset, batch_size=16)
 
 
 pt_outputs = []
@@ -49,6 +47,7 @@ onnx_outputs = []
 with torch.no_grad():
     for batch in test_dataloader:
         behave_inputs, imu_inputs = batch  # adjust if your dataset returns differently
+        print(behave_inputs.shape, imu_inputs.shape)
 
         # move to device
         behave_inputs = behave_inputs.to(device).float()
@@ -77,7 +76,7 @@ with torch.no_grad():
         out_onnx = ort_session.run(None, ort_inputs)[0]
         onnx_outputs.append(out_onnx)
 
-
+        break
         # print(outputs.cpu())
 
 
@@ -86,10 +85,14 @@ onnx_outputs = np.concatenate(onnx_outputs, axis=0)
 
 torch.set_printoptions(precision=8)
 print("PyTorch outputs:", pt_outputs.shape)
-print("ONNX outputs:", onnx_outputs.shape)
+print(pt_outputs)
 
-outs = pt_outputs[:5]
-outs.numpy().astype(np.float32).tofile("output_tensor.bin")
+print("ONNX outputs:", onnx_outputs.shape)
+print(onnx_outputs)
+
+
+# outs = pt_outputs[:5]
+# outs.numpy().astype(np.int8).tofile("output_tensor.bin")
 # print(onnx_outputs[-1])
 
 # onnx_inputs = [tensor.numpy(force=True) for tensor in test_input]

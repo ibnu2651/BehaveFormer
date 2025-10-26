@@ -380,7 +380,7 @@ def main(args):
     output_dir = config['preprocess']['output_dir']
     config_name = os.path.basename(args.config).split('.')[0].split(f'{dataname}_')[-1]
     working_dir = os.path.join(output_dir, config_name)
-    os.makedirs(working_dir)
+    os.makedirs(working_dir,exist_ok=True)
     
     # Set logging
     logger = logging.getLogger()
