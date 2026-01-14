@@ -11,3 +11,8 @@ __pycache__/
 data/
 work_dirs*/
 figures/
+
+# dbs
+*db
+*db2
+*db3

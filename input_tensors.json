@@ -1,1 +1,1 @@
-{"behave_shape": [5, 50, 8], "imu_shape": [5, 100, 36], "dtype": "float32"}
+{"touch_shape": [325, 50, 8], "imu_shape": [325, 100, 36], "dtype": "float32"}

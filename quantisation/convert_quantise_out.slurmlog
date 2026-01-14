@@ -1,0 +1,64 @@
+[0;93m2025-10-29 23:36:50.861966876 [W:onnxruntime:Default, device_discovery.cc:164 DiscoverDevicesForPlatform] GPU device discovery failed: device_discovery.cc:89 ReadFileContents Failed to open file: "/sys/class/drm/card0/device/vendor"[m
+[1;31m2025-10-29 23:36:55.321315835 [E:onnxruntime:Default, env.cc:226 ThreadMain] pthread_setaffinity_np failed for thread: 316129, index: 0, mask: {1, 13, }, error code: 22 error msg: Invalid argument. Specify the number of threads explicitly so the affinity is not set.[m
+[1;31m2025-10-29 23:36:55.321684541 [E:onnxruntime:Default, env.cc:226 ThreadMain] pthread_setaffinity_np failed for thread: 316130, index: 1, mask: {2, 14, }, error code: 22 error msg: Invalid argument. Specify the number of threads explicitly so the affinity is not set.[m
+[1;31m2025-10-29 23:36:55.336292510 [E:onnxruntime:Default, env.cc:226 ThreadMain] pthread_setaffinity_np failed for thread: 316133, index: 4, mask: {5, 17, }, error code: 22 error msg: Invalid argument. Specify the number of threads explicitly so the affinity is not set.[m
+[1;31m2025-10-29 23:36:55.336740872 [E:onnxruntime:Default, env.cc:226 ThreadMain] pthread_setaffinity_np failed for thread: 316132, index: 3, mask: {4, 16, }, error code: 22 error msg: Invalid argument. Specify the number of threads explicitly so the affinity is not set.[m
+[1;31m2025-10-29 23:36:55.336478547 [E:onnxruntime:Default, env.cc:226 ThreadMain] pthread_setaffinity_np failed for thread: 316134, index: 5, mask: {6, 18, }, error code: 22 error msg: Invalid argument. Specify the number of threads explicitly so the affinity is not set.[m
+[1;31m2025-10-29 23:36:55.344260528 [E:onnxruntime:Default, env.cc:226 ThreadMain] pthread_setaffinity_np failed for thread: 316139, index: 10, mask: {11, 23, }, error code: 22 error msg: Invalid argument. Specify the number of threads explicitly so the affinity is not set.[m
+[1;31m2025-10-29 23:36:55.336532896 [E:onnxruntime:Default, env.cc:226 ThreadMain] pthread_setaffinity_np failed for thread: 316135, index: 6, mask: {7, 19, }, error code: 22 error msg: Invalid argument. Specify the number of threads explicitly so the affinity is not set.[m
+[1;31m2025-10-29 23:36:55.336578018 [E:onnxruntime:Default, env.cc:226 ThreadMain] pthread_setaffinity_np failed for thread: 316136, index: 7, mask: {8, 20, }, error code: 22 error msg: Invalid argument. Specify the number of threads explicitly so the affinity is not set.[m
+[1;31m2025-10-29 23:36:55.336630513 [E:onnxruntime:Default, env.cc:226 ThreadMain] pthread_setaffinity_np failed for thread: 316137, index: 8, mask: {9, 21, }, error code: 22 error msg: Invalid argument. Specify the number of threads explicitly so the affinity is not set.[m
+[1;31m2025-10-29 23:36:55.336683305 [E:onnxruntime:Default, env.cc:226 ThreadMain] pthread_setaffinity_np failed for thread: 316138, index: 9, mask: {10, 22, }, error code: 22 error msg: Invalid argument. Specify the number of threads explicitly so the affinity is not set.[m
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([5, 50, 8]) torch.Size([5, 100, 36])
+PyTorch outputs: torch.Size([325, 64])
+tensor([[ 1.18221271e+00,  2.58232534e-01, -8.27563226e-01,  ...,
+         -4.53698337e-01, -3.68338078e-01, -3.96439385e+00],
+        [-4.47328627e-01, -8.73702578e-03,  8.24025512e-01,  ...,
+         -7.77925432e-01, -3.68076682e-01, -3.63220716e+00],
+        [ 1.84884384e-01,  2.05549762e-01, -1.23863868e-01,  ...,
+         -4.75904524e-01, -3.34115148e-01, -6.13871670e+00],
+        ...,
+        [-2.98057795e-01, -3.69128510e-02,  3.65988910e-01,  ...,
+         -7.10550904e-01, -4.86967176e-01, -5.17656994e+00],
+        [-6.17250144e-01, -1.31873903e-03, -1.63646504e-01,  ...,
+         -6.78920150e-01, -3.68328989e-01, -5.84263945e+00],
+        [ 1.01263452e+00, -1.03931993e-01, -1.25438321e+00,  ...,
+         -7.88346946e-01, -5.37479937e-01, -7.37223482e+00]])
+ONNX outputs: torch.Size([325, 64])
+tensor([[ 1.13160908e+00,  2.92247236e-01, -8.07647884e-01,  ...,
+         -4.31386888e-01, -4.32969391e-01, -3.89697456e+00],
+        [-4.62100834e-01,  3.48122902e-02,  7.87766993e-01,  ...,
+         -7.93159723e-01, -4.74909127e-01, -3.71830463e+00],
+        [ 1.20963767e-01,  2.44510978e-01, -1.00809872e-01,  ...,
+         -4.75372463e-01, -4.24445063e-01, -6.07272625e+00],
+        ...,
+        [-3.30526650e-01, -3.47966445e-03,  3.90580475e-01,  ...,
+         -7.09314704e-01, -5.61084211e-01, -5.10406971e+00],
+        [-6.74459934e-01,  3.01905442e-02, -1.42041504e-01,  ...,
+         -6.80615962e-01, -4.39961851e-01, -5.80820656e+00],
+        [ 9.43517804e-01, -5.79395294e-02, -1.24954271e+00,  ...,
+         -7.72813559e-01, -6.31588280e-01, -7.36675310e+00]])
+Pytorch
+EER: 4.927884615384613 Usability: 0.969613762633796 TCR: 2.771187552973342 FRWI: 0.001001025641025641 FAWI: 0.09507589743589744
+ONNX quantised
+EER: 5.006009615384613 Usability: 0.969613762633796 TCR: 2.8293487497874907 FRWI: 0.001001025641025641 FAWI: 0.10073589743589743
