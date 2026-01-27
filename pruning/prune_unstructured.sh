@@ -6,6 +6,6 @@
 #SBATCH --mem=16G
 #SBATCH --gres=gpu:nv:1
 
-# srun python prune_unstructured.py
-# srun python train_finetune.py
-srun python test_finetune.py
+srun python prune_unstructured.py
+srun python -u finetune_unstructured.py
+srun python -u test_unstructured_finetune.py

@@ -1,3 +1,77 @@
+Sparsity in behave_transformer.encoder.layers.0.temporal_attention.out_proj: 15.62%
+Sparsity in behave_transformer.encoder.layers.0.channel_attention.out_proj: 20.04%
+Sparsity in behave_transformer.encoder.layers.0.cnn.0: 0.00%
+Sparsity in behave_transformer.encoder.layers.0.cnn.4: 11.11%
+Sparsity in behave_transformer.encoder.layers.0.cnn.8: 12.00%
+Sparsity in behave_transformer.encoder.layers.1.temporal_attention.out_proj: 14.06%
+Sparsity in behave_transformer.encoder.layers.1.channel_attention.out_proj: 13.48%
+Sparsity in behave_transformer.encoder.layers.1.cnn.0: 0.00%
+Sparsity in behave_transformer.encoder.layers.1.cnn.4: 11.11%
+Sparsity in behave_transformer.encoder.layers.1.cnn.8: 16.00%
+Sparsity in behave_transformer.encoder.layers.2.temporal_attention.out_proj: 18.75%
+Sparsity in behave_transformer.encoder.layers.2.channel_attention.out_proj: 12.88%
+Sparsity in behave_transformer.encoder.layers.2.cnn.0: 0.00%
+Sparsity in behave_transformer.encoder.layers.2.cnn.4: 0.00%
+Sparsity in behave_transformer.encoder.layers.2.cnn.8: 20.00%
+Sparsity in behave_transformer.encoder.layers.3.temporal_attention.out_proj: 10.94%
+Sparsity in behave_transformer.encoder.layers.3.channel_attention.out_proj: 12.56%
+Sparsity in behave_transformer.encoder.layers.3.cnn.0: 0.00%
+Sparsity in behave_transformer.encoder.layers.3.cnn.4: 11.11%
+Sparsity in behave_transformer.encoder.layers.3.cnn.8: 4.00%
+Sparsity in behave_transformer.encoder.layers.4.temporal_attention.out_proj: 15.62%
+Sparsity in behave_transformer.encoder.layers.4.channel_attention.out_proj: 11.56%
+Sparsity in behave_transformer.encoder.layers.4.cnn.0: 0.00%
+Sparsity in behave_transformer.encoder.layers.4.cnn.4: 11.11%
+Sparsity in behave_transformer.encoder.layers.4.cnn.8: 12.00%
+Sparsity in imu_transformer.encoder.layers.0.temporal_attention.out_proj: 16.82%
+Sparsity in imu_transformer.encoder.layers.0.channel_attention.out_proj: 17.06%
+Sparsity in imu_transformer.encoder.layers.0.cnn.0: 0.00%
+Sparsity in imu_transformer.encoder.layers.0.cnn.4: 0.00%
+Sparsity in imu_transformer.encoder.layers.0.cnn.8: 4.00%
+Sparsity in imu_transformer.encoder.layers.1.temporal_attention.out_proj: 13.97%
+Sparsity in imu_transformer.encoder.layers.1.channel_attention.out_proj: 15.97%
+Sparsity in imu_transformer.encoder.layers.1.cnn.0: 0.00%
+Sparsity in imu_transformer.encoder.layers.1.cnn.4: 0.00%
+Sparsity in imu_transformer.encoder.layers.1.cnn.8: 24.00%
+Sparsity in imu_transformer.encoder.layers.2.temporal_attention.out_proj: 15.35%
+Sparsity in imu_transformer.encoder.layers.2.channel_attention.out_proj: 14.82%
+Sparsity in imu_transformer.encoder.layers.2.cnn.0: 0.00%
+Sparsity in imu_transformer.encoder.layers.2.cnn.4: 0.00%
+Sparsity in imu_transformer.encoder.layers.2.cnn.8: 8.00%
+Sparsity in imu_transformer.encoder.layers.3.temporal_attention.out_proj: 15.05%
+Sparsity in imu_transformer.encoder.layers.3.channel_attention.out_proj: 15.63%
+Sparsity in imu_transformer.encoder.layers.3.cnn.0: 0.00%
+Sparsity in imu_transformer.encoder.layers.3.cnn.4: 11.11%
+Sparsity in imu_transformer.encoder.layers.3.cnn.8: 20.00%
+Sparsity in imu_transformer.encoder.layers.4.temporal_attention.out_proj: 15.82%
+Sparsity in imu_transformer.encoder.layers.4.channel_attention.out_proj: 17.17%
+Sparsity in imu_transformer.encoder.layers.4.cnn.0: 0.00%
+Sparsity in imu_transformer.encoder.layers.4.cnn.4: 22.22%
+Sparsity in imu_transformer.encoder.layers.4.cnn.8: 4.00%
+Sparsity in linear_behave.0: 15.12%
+Sparsity in linear_behave.3: 30.23%
+Sparsity in linear_imu.0: 19.04%
+Sparsity in linear_imu.3: 76.73%
+Sparsity in linear_behave_imu: 50.70%
+
+Global Sparsity: 20.00%
+
+Pruning finalized. Model is ready for export.
+
+Model saved.
+Start loading datasets
+
+Finished pickling
+
+Traceback (most recent call last):
+  File "/home/i/ibnu2651/BehaveFormer/pruning/finetune_unstructured.py", line 45, in <module>
+    train_dataset = HUMITrainDataset(batch_size=128,
+  File "/home/i/ibnu2651/BehaveFormer/pruning/../model/dataset.py", line 166, in __init__
+    self.create_user_sess_seq()
+  File "/home/i/ibnu2651/BehaveFormer/pruning/../model/dataset.py", line 182, in create_user_sess_seq
+    data = pickle.load(f)
+EOFError: Ran out of input
+srun: error: xgpc0: task 0: Exited with exit code 1
 torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
 torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
 torch.Size([16, 50, 8]) torch.Size([16, 100, 36])

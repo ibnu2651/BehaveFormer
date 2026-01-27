@@ -1,0 +1,44 @@
+Loading datasets...
+Datasets + dataloaders ready.
+
+Building pruned architecture...
+Loaded pruned weights. Missing keys: 0, Unexpected keys: 0
+Sanity output shape: (1, 64) (expected (1, 64))
+
+Epoch 1/10 | Loss: 0.226135 | Val EER: 3.1593
+Epoch 2/10 | Loss: 0.132810 | Val EER: 2.8846
+Epoch 3/10 | Loss: 0.092036 | Val EER: 0.8242
+Epoch 4/10 | Loss: 0.083846 | Val EER: 0.8242
+Epoch 5/10 | Loss: 0.073268 | Val EER: 1.0989
+Epoch 6/10 | Loss: 0.065176 | Val EER: 0.8242
+Epoch 7/10 | Loss: 0.059856 | Val EER: 0.8242
+Epoch 8/10 | Loss: 0.044936 | Val EER: 0.9615
+Epoch 9/10 | Loss: 0.037633 | Val EER: 1.0989
+Epoch 10/10 | Loss: 0.035364 | Val EER: 1.0989
+
+Done. Best Val EER: 0.8242
+Saved best: prune_structured_finetuned_best.pt
+Saved last: prune_structured_finetuned_last.pt
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([5, 50, 8]) torch.Size([5, 100, 36])
+Pytorch
+EER: 7.78245192307692 Usability: 0.931075868865355 TCR: 2.8115290987638093 FRWI: 0.0024035897435897434 FAWI: 0.10628589743589743
