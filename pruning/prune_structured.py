@@ -67,6 +67,42 @@ def keep_first_n_encoder_layers(transformer_module: nn.Module, n: int):
     transformer_module.encoder.layers = nn.ModuleList(list(layers[:n]))
 
 
+@torch.no_grad()
+def resize_two_linear_mlp(seq: nn.Sequential, new_hidden: int):
+    """
+    Deterministic resize for:
+      [Linear(in, hidden), ReLU, Dropout, Linear(hidden, out), ReLU]
+    Keeps indices [0..new_hidden-1].
+
+    Use this ONLY to rebuild an architecture that matches a checkpoint.
+    (Do NOT use it as the "pruning criterion".)
+    """
+    assert isinstance(seq, nn.Sequential)
+    assert isinstance(seq[0], nn.Linear) and isinstance(seq[3], nn.Linear)
+
+    fc1: nn.Linear = seq[0]
+    fc2: nn.Linear = seq[3]
+    old_hidden = fc1.out_features
+    if not (0 < new_hidden <= old_hidden):
+        raise ValueError(f"new_hidden must be in (0, {old_hidden}], got {new_hidden}")
+
+    keep = torch.arange(new_hidden)
+
+    new_fc1 = nn.Linear(fc1.in_features, new_hidden, bias=(fc1.bias is not None))
+    new_fc2 = nn.Linear(new_hidden, fc2.out_features, bias=(fc2.bias is not None))
+
+    new_fc1.weight.copy_(fc1.weight[keep, :])
+    if fc1.bias is not None:
+        new_fc1.bias.copy_(fc1.bias[keep])
+
+    new_fc2.weight.copy_(fc2.weight[:, keep])
+    if fc2.bias is not None:
+        new_fc2.bias.copy_(fc2.bias)
+
+    seq[0] = new_fc1
+    seq[3] = new_fc2
+
+
 def count_params(m: nn.Module) -> int:
     return sum(p.numel() for p in m.parameters())
 
@@ -88,7 +124,16 @@ def main():
         # num_layer is default=5 in your class unless you changed it elsewhere
     )
 
-    ckpt_path = "/home/i/ibnu2651/BehaveFormer/work_dirs/humi_scroll50down_imu100all_epoch500_enroll3_b128/20231026_155303/best_models/epoch_210_eer_2.60817307692308.pt"
+    # ckpt_path = "/home/i/ibnu2651/BehaveFormer/work_dirs/humi_scroll50down_imu100all_epoch500_enroll3_b128/20231026_155303/best_models/epoch_210_eer_2.60817307692308.pt"
+    ckpt_path = "/home/i/ibnu2651/BehaveFormer/pruning/prune_structured_iterative_rd2_finetuned_last.pt"
+
+    curr_imu_hidden = 1400
+    curr_behave_hidden = 160
+    curr_layers = 5
+
+    resize_two_linear_mlp(model.linear_imu, curr_imu_hidden)
+    resize_two_linear_mlp(model.linear_behave, curr_behave_hidden)
+
     state = torch.load(ckpt_path, map_location=torch.device("cpu"), weights_only=True)
     model.load_state_dict(state)
     model.eval()
@@ -96,24 +141,26 @@ def main():
     params_before = count_params(model)
     print(f"Original parameter count: {params_before}")
 
+
     # ---- My pruning plan knobs (Balanced defaults) ----
     # linear_imu: in=3600, hidden=1800  -> try 1200 for balanced
-    new_imu_hidden = 1200
+    new_imu_hidden = 1400
 
     # linear_behave: in=400, hidden=200 -> try 160 for balanced
     new_behave_hidden = 160
 
     # layer dropping: 5 -> 3 for balanced
-    new_num_layers_behave = 3
-    new_num_layers_imu = 3
+    new_num_layers_behave = 4
+    new_num_layers_imu = 4
+
 
     # ---- Apply structured pruning (MLP hidden width) ----
-    if model.imu_type != "none":
-        prune_two_linear_mlp(model.linear_imu, new_hidden=new_imu_hidden, importance_from="fc2_l1")
-        print(f"Pruned linear_imu hidden -> {new_imu_hidden}")
+    # if model.imu_type != "none":
+    #     prune_two_linear_mlp(model.linear_imu, new_hidden=new_imu_hidden, importance_from="fc2_l1")
+    #     print(f"Pruned linear_imu hidden -> {new_imu_hidden}")
 
-    prune_two_linear_mlp(model.linear_behave, new_hidden=new_behave_hidden, importance_from="fc2_l1")
-    print(f"Pruned linear_behave hidden -> {new_behave_hidden}")
+    # prune_two_linear_mlp(model.linear_behave, new_hidden=new_behave_hidden, importance_from="fc2_l1")
+    # print(f"Pruned linear_behave hidden -> {new_behave_hidden}")
 
     # ---- Drop transformer layers ----
     keep_first_n_encoder_layers(model.behave_transformer, new_num_layers_behave)
@@ -139,14 +186,14 @@ def main():
     print(f"Parameters: {params_before} -> {params_after} ({100*(1-params_after/params_before):.2f}% reduction)")
 
     # ---- Save ----
-    output_path_sd = "prune_structured_state_dict.pt"
-    output_path_full = "prune_structured_full_model.pt"
+    output_path_sd = "prune_structured_iterative_rd3_state_dict.pt"
+    # output_path_full = "prune_structured_full_model.pt"
 
     torch.save(model.state_dict(), output_path_sd)
-    torch.save(model, output_path_full)
+    # torch.save(model, output_path_full)
 
     print(f"Saved state_dict to: {output_path_sd}")
-    print(f"Saved full model to: {output_path_full}")
+    # print(f"Saved full model to: {output_path_full}")
 
 
 if __name__ == "__main__":

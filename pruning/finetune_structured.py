@@ -27,30 +27,44 @@ def move_positional_encoding_tensors_to_device(model, device):
             m.sigma = m.sigma.to(device)
 
 
-# @torch.no_grad()
-# def evaluate(model, test_dataset, test_dataloader,
-#              target_len, number_of_enrollment_sessions, number_of_verify_sessions,
-#              imu_type, device):
-#     model.eval()
+@torch.no_grad()
+def resize_two_linear_mlp(seq: nn.Sequential, new_hidden: int):
+    """
+    Deterministic resize for:
+      [Linear(in, hidden), ReLU, Dropout, Linear(hidden, out), ReLU]
+    Keeps indices [0..new_hidden-1].
 
-#     feature_embeddings = []
-#     for item in test_dataloader:
-#         if imu_type != "none":
-#             out = model([item[0].to(device).float(), item[1].to(device).float()])
-#         else:
-#             out = model(item[0].to(device).float())
-#         feature_embeddings.append(out)
+    Use this ONLY to rebuild an architecture that matches a checkpoint.
+    (Do NOT use it as the "pruning criterion".)
+    """
+    assert isinstance(seq, nn.Sequential)
+    assert isinstance(seq[0], nn.Linear) and isinstance(seq[3], nn.Linear)
 
-#     feats = torch.cat(feature_embeddings, dim=0)
-#     feats = feats.view(test_dataset.num_users, test_dataset.num_sessions, test_dataset.num_seqs, target_len)
+    fc1: nn.Linear = seq[0]
+    fc2: nn.Linear = seq[3]
+    old_hidden = fc1.out_features
+    if not (0 < new_hidden <= old_hidden):
+        raise ValueError(f"new_hidden must be in (0, {old_hidden}], got {new_hidden}")
 
-#     eer = Metric.cal_user_eer_fixed_sessions(
-#         feats, number_of_enrollment_sessions, number_of_verify_sessions
-#     )[0]
-#     return eer
+    keep = torch.arange(new_hidden)
+
+    new_fc1 = nn.Linear(fc1.in_features, new_hidden, bias=(fc1.bias is not None))
+    new_fc2 = nn.Linear(new_hidden, fc2.out_features, bias=(fc2.bias is not None))
+
+    new_fc1.weight.copy_(fc1.weight[keep, :])
+    if fc1.bias is not None:
+        new_fc1.bias.copy_(fc1.bias[keep])
+
+    new_fc2.weight.copy_(fc2.weight[:, keep])
+    if fc2.bias is not None:
+        new_fc2.bias.copy_(fc2.bias)
+
+    seq[0] = new_fc1
+    seq[3] = new_fc2
+
 
 def evaluate(model, test_dataset, test_dataloader, target_len, number_of_enrollment_sessions, number_of_verify_sessions, imu_type, device):
-    model.train(False)
+    model.eval()
 
     with torch.no_grad():
         feature_embeddings = []
@@ -112,10 +126,10 @@ def keep_first_n_encoder_layers(transformer_module, n: int):
 def main():
     imu_type = "acc_gyr_mag"
 
-    new_imu_hidden = 1200
+    new_imu_hidden = 1400
     new_behave_hidden = 160
-    new_num_layers_behave = 3
-    new_num_layers_imu = 3
+    new_num_layers_behave = 4
+    new_num_layers_imu = 4
 
     target_len = 64
     enroll_sessions = 3
@@ -124,9 +138,9 @@ def main():
     # Files
     base_dir = "/home/i/ibnu2651/BehaveFormer/Humidb2/scroll50downup_imu100all"
     # val_base_dir = "/home/i/ibnu2651/BehaveFormer/Humidb/scroll50downup_imu100all"
-    ckpt_structured_pruned = "prune_structured_state_dict.pt"
-    out_best = "prune_structured_finetuned_best.pt"
-    out_last = "prune_structured_finetuned_last.pt"
+    ckpt_structured_pruned = "prune_structured_iterative_rd3_state_dict.pt"
+    # out_best = "prune_structured_encoderonly_finetuned_best.pt"
+    out_last = "prune_structured_iterative_rd3_finetuned_last.pt"
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -163,8 +177,21 @@ def main():
     model.eval()
 
     # Apply same structural changes as the pruning plan
-    prune_two_linear_mlp(model.linear_imu, new_hidden=new_imu_hidden, importance_from="fc2_l1")
-    prune_two_linear_mlp(model.linear_behave, new_hidden=new_behave_hidden, importance_from="fc2_l1")
+    # prune_two_linear_mlp(model.linear_imu, new_hidden=new_imu_hidden, importance_from="fc2_l1")
+    # prune_two_linear_mlp(model.linear_behave, new_hidden=new_behave_hidden, importance_from="fc2_l1")
+
+    # Build architecture that matches the checkpoint (deterministic)
+    if imu_type != "none":
+        resize_two_linear_mlp(model.linear_imu, new_hidden=new_imu_hidden)
+    resize_two_linear_mlp(model.linear_behave, new_hidden=new_behave_hidden)
+
+    keep_first_n_encoder_layers(model.behave_transformer, new_num_layers_behave)
+    if imu_type != "none":
+        keep_first_n_encoder_layers(model.imu_transformer, new_num_layers_imu)
+
+    # Now load should be strict if the numbers match
+    pruned_sd = torch.load(ckpt_structured_pruned, map_location="cpu", weights_only=True)
+    model.load_state_dict(pruned_sd, strict=True)
 
     keep_first_n_encoder_layers(model.behave_transformer, new_num_layers_behave)
     keep_first_n_encoder_layers(model.imu_transformer, new_num_layers_imu)
@@ -216,13 +243,13 @@ def main():
         avg_loss = t_loss / max(1, len(train_dataloader))
         print(f"Epoch {epoch+1}/{epochs} | Loss: {avg_loss:.6f} | Val EER: {eer:.4f}")
 
-        if eer < best_eer:
-            best_eer = eer
-            torch.save(model.state_dict(), out_best)
+        # if eer < best_eer:
+        #     best_eer = eer
+        #     torch.save(model.state_dict(), out_best)
 
     torch.save(model.state_dict(), out_last)
     print(f"\nDone. Best Val EER: {best_eer:.4f}")
-    print(f"Saved best: {out_best}")
+    # print(f"Saved best: {out_best}")
     print(f"Saved last: {out_last}")
 
 

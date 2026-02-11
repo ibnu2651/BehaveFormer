@@ -54,16 +54,23 @@ def prune_two_linear_mlp(seq: nn.Sequential, new_hidden: int, importance_from: s
 
 
 def keep_first_n_encoder_layers(transformer_module, n: int):
-    transformer_module.encoder.layers = nn.ModuleList(list(transformer_module.encoder.layers[:n]))
+    layers = transformer_module.encoder.layers
+    # transformer_module.encoder.layers = nn.ModuleList([layers[0], layers[2], layers[4]])
+    transformer_module.encoder.layers = nn.ModuleList(list(layers[:n]))
 
 
-prune_two_linear_mlp(model.linear_imu, new_hidden=1200)
-prune_two_linear_mlp(model.linear_behave, new_hidden=160)
-keep_first_n_encoder_layers(model.behave_transformer, 3)
-keep_first_n_encoder_layers(model.imu_transformer, 3)
+new_imu_hidden = 1200
+new_behave_hidden = 160
+new_num_layers_behave = 3
+new_num_layers_imu = 3
+
+prune_two_linear_mlp(model.linear_imu, new_hidden=new_imu_hidden)
+prune_two_linear_mlp(model.linear_behave, new_hidden=new_behave_hidden)
+# keep_first_n_encoder_layers(model.behave_transformer, new_num_layers_behave)
+# keep_first_n_encoder_layers(model.imu_transformer, new_num_layers_imu)
 
 # load fine-tuned weights
-state = torch.load("prune_structured_finetuned_last.pt", map_location="cpu")
+state = torch.load("prune_structured_linearonly_finetuned_last.pt", map_location="cpu")
 model.load_state_dict(state, strict=True)
 
 model.eval()
@@ -77,12 +84,12 @@ dummy_input = ([dummy_scroll, dummy_imu])
 torch.onnx.export(
     model,
     dummy_input,
-    "prune_structured_finetuned_last.onnx",
+    "prune_structured_linearonly_finetuned_last.onnx",
     opset_version=17,
-    input_names=["scroll_inputs", "imu_inputs"],
+    input_names=["touch_inputs", "imu_inputs"],
     output_names=["output"],
     dynamic_axes={
-        "scroll_inputs": {0: "batch"},
+        "touch_inputs": {0: "batch"},
         "imu_inputs": {0: "batch"},
         "output": {0: "batch"}
     }
@@ -91,12 +98,12 @@ torch.onnx.export(
 print("ONNX export successful")
 
 
-sess = ort.InferenceSession("prune_structured_finetuned_last.onnx")
+sess = ort.InferenceSession("prune_structured_linearonly_finetuned_last.onnx")
 
 out = sess.run(
     None,
     {
-        "scroll_inputs": np.random.randn(1,50,8).astype(np.float32),
+        "touch_inputs": np.random.randn(1,50,8).astype(np.float32),
         "imu_inputs": np.random.randn(1,100,36).astype(np.float32)
     }
 )

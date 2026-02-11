@@ -72,15 +72,61 @@ def keep_first_n_encoder_layers(transformer_module, n: int):
     transformer_module.encoder.layers = nn.ModuleList(list(transformer_module.encoder.layers[:n]))
 
 
-model_path = "/home/i/ibnu2651/BehaveFormer/pruning/prune_structured_finetuned_last.pt"
+@torch.no_grad()
+def resize_two_linear_mlp(seq: nn.Sequential, new_hidden: int):
+    """
+    Deterministic resize for:
+      [Linear(in, hidden), ReLU, Dropout, Linear(hidden, out), ReLU]
+    Keeps indices [0..new_hidden-1].
+
+    Use this ONLY to rebuild an architecture that matches a checkpoint.
+    (Do NOT use it as the "pruning criterion".)
+    """
+    assert isinstance(seq, nn.Sequential)
+    assert isinstance(seq[0], nn.Linear) and isinstance(seq[3], nn.Linear)
+
+    fc1: nn.Linear = seq[0]
+    fc2: nn.Linear = seq[3]
+    old_hidden = fc1.out_features
+    if not (0 < new_hidden <= old_hidden):
+        raise ValueError(f"new_hidden must be in (0, {old_hidden}], got {new_hidden}")
+
+    keep = torch.arange(new_hidden)
+
+    new_fc1 = nn.Linear(fc1.in_features, new_hidden, bias=(fc1.bias is not None))
+    new_fc2 = nn.Linear(new_hidden, fc2.out_features, bias=(fc2.bias is not None))
+
+    new_fc1.weight.copy_(fc1.weight[keep, :])
+    if fc1.bias is not None:
+        new_fc1.bias.copy_(fc1.bias[keep])
+
+    new_fc2.weight.copy_(fc2.weight[:, keep])
+    if fc2.bias is not None:
+        new_fc2.bias.copy_(fc2.bias)
+
+    seq[0] = new_fc1
+    seq[3] = new_fc2
+
+
+model_path = "/home/i/ibnu2651/BehaveFormer/pruning/prune_structured_iterative_rd3_finetuned_last.pt"
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+new_imu_hidden = 1400
+new_behave_hidden = 160
+new_num_layers_behave = 4
+new_num_layers_imu = 4
+
 model = BehaveFormer(8, 36, 50, 100, 64, 20, 4, 10, 6, 10, "acc_gyr_mag")
-prune_two_linear_mlp(model.linear_imu, new_hidden=1200)
-prune_two_linear_mlp(model.linear_behave, new_hidden=160)
-keep_first_n_encoder_layers(model.behave_transformer, 3)
-keep_first_n_encoder_layers(model.imu_transformer, 3)
+# prune_two_linear_mlp(model.linear_imu, new_hidden=new_imu_hidden)
+# prune_two_linear_mlp(model.linear_behave, new_hidden=new_behave_hidden)
+
+resize_two_linear_mlp(model.linear_imu, new_hidden=new_imu_hidden)
+resize_two_linear_mlp(model.linear_behave, new_hidden=new_behave_hidden)
+
+keep_first_n_encoder_layers(model.behave_transformer, new_num_layers_behave)
+keep_first_n_encoder_layers(model.imu_transformer, new_num_layers_imu)
+
 model.load_state_dict(torch.load(model_path, map_location=torch.device("cpu"), weights_only=True))
 model.to(device)
 

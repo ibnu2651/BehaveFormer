@@ -1,0 +1,256 @@
+Original parameter count: 6981744
+Pruned linear_imu hidden -> 1600
+Pruned linear_behave hidden -> 180
+Output shape: (1, 64) (expected: (1, 64))
+Pruning complete!
+Parameters: 6981744 -> 6239444 (10.63% reduction)
+Saved state_dict to: prune_structured_iterative_rd1_state_dict.pt
+Loading datasets...
+Datasets + dataloaders ready.
+
+Building pruned architecture...
+Loaded pruned weights. Missing keys: 0, Unexpected keys: 0
+Sanity output shape: (1, 64) (expected (1, 64))
+
+Epoch 1/10 | Loss: 0.034275 | Val EER: 0.4121
+Epoch 2/10 | Loss: 0.025376 | Val EER: 0.4121
+Epoch 3/10 | Loss: 0.021137 | Val EER: 0.4121
+Epoch 4/10 | Loss: 0.017105 | Val EER: 0.2747
+Epoch 5/10 | Loss: 0.016545 | Val EER: 0.4121
+Epoch 6/10 | Loss: 0.017392 | Val EER: 0.4121
+Epoch 7/10 | Loss: 0.012732 | Val EER: 0.4121
+Epoch 8/10 | Loss: 0.012537 | Val EER: 0.2747
+Epoch 9/10 | Loss: 0.009274 | Val EER: 0.2747
+Epoch 10/10 | Loss: 0.009059 | Val EER: 0.2747
+
+Done. Best Val EER: inf
+Saved last: prune_structured_iterative_rd1_finetuned_last.pt
+Original parameter count: 6239444
+Pruned linear_imu hidden -> 1400
+Pruned linear_behave hidden -> 160
+Output shape: (1, 64) (expected: (1, 64))
+Pruning complete!
+Parameters: 6239444 -> 5497144 (11.90% reduction)
+Saved state_dict to: prune_structured_iterative_rd2_state_dict.pt
+/home/i/ibnu2651/miniconda3/envs/BehaveFormer/lib/python3.10/site-packages/torch/cuda/__init__.py:128: UserWarning: CUDA initialization: CUDA unknown error - this may be due to an incorrectly set up environment, e.g. changing env variable CUDA_VISIBLE_DEVICES after program start. Setting the available devices to be zero. (Triggered internally at ../c10/cuda/CUDAFunctions.cpp:108.)
+  return torch._C._cuda_getDeviceCount() > 0
+Loading datasets...
+Datasets + dataloaders ready.
+
+Building pruned architecture...
+Loaded pruned weights. Missing keys: 0, Unexpected keys: 0
+Sanity output shape: (1, 64) (expected (1, 64))
+
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+[2026-02-12T01:23:14.093] error: *** JOB 367021 ON xgpe6 CANCELLED AT 2026-02-12T01:23:14 DUE to SIGNAL Terminated ***
+[2026-02-12T01:23:14.094] error: *** STEP 367021.1 ON xgpe6 CANCELLED AT 2026-02-12T01:23:14 DUE to SIGNAL Terminated ***
+Loading datasets...
+Datasets + dataloaders ready.
+
+Building pruned architecture...
+Loaded pruned weights. Missing keys: 0, Unexpected keys: 0
+Sanity output shape: (1, 64) (expected (1, 64))
+
+Epoch 1/10 | Loss: 0.007535 | Val EER: 0.4121
+Epoch 2/10 | Loss: 0.006139 | Val EER: 0.2747
+Epoch 3/10 | Loss: 0.005735 | Val EER: 0.2747
+Epoch 4/10 | Loss: 0.006121 | Val EER: 0.4121
+Epoch 5/10 | Loss: 0.006336 | Val EER: 0.2747
+Epoch 6/10 | Loss: 0.005283 | Val EER: 0.2747
+Epoch 7/10 | Loss: 0.005182 | Val EER: 0.2747
+Epoch 8/10 | Loss: 0.005475 | Val EER: 0.2747
+Epoch 9/10 | Loss: 0.005524 | Val EER: 0.2747
+Epoch 10/10 | Loss: 0.003617 | Val EER: 0.2747
+
+Done. Best Val EER: inf
+Saved last: prune_structured_iterative_rd2_finetuned_last.pt
+Original parameter count: 5497144
+Dropped behave_transformer layers -> 4
+Dropped imu_transformer layers -> 4
+Output shape: (1, 64) (expected: (1, 64))
+Pruning complete!
+Parameters: 5497144 -> 5440664 (1.03% reduction)
+Saved state_dict to: prune_structured_iterative_rd3_state_dict.pt
+/home/i/ibnu2651/miniconda3/envs/BehaveFormer/lib/python3.10/site-packages/torch/cuda/__init__.py:128: UserWarning: CUDA initialization: CUDA unknown error - this may be due to an incorrectly set up environment, e.g. changing env variable CUDA_VISIBLE_DEVICES after program start. Setting the available devices to be zero. (Triggered internally at ../c10/cuda/CUDAFunctions.cpp:108.)
+  return torch._C._cuda_getDeviceCount() > 0
+Loading datasets...
+Datasets + dataloaders ready.
+
+Building pruned architecture...
+Loaded pruned weights. Missing keys: 0, Unexpected keys: 0
+Sanity output shape: (1, 64) (expected (1, 64))
+
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+[2026-02-12T01:40:33.950] error: *** JOB 367052 ON xgpe6 CANCELLED AT 2026-02-12T01:40:33 DUE to SIGNAL Terminated ***
+[2026-02-12T01:40:33.951] error: *** STEP 367052.1 ON xgpe6 CANCELLED AT 2026-02-12T01:40:33 DUE to SIGNAL Terminated ***
+Original parameter count: 5497144
+Dropped behave_transformer layers -> 4
+Dropped imu_transformer layers -> 4
+Output shape: (1, 64) (expected: (1, 64))
+Pruning complete!
+Parameters: 5497144 -> 5440664 (1.03% reduction)
+Saved state_dict to: prune_structured_iterative_rd3_state_dict.pt
+/home/i/ibnu2651/miniconda3/envs/BehaveFormer/lib/python3.10/site-packages/torch/cuda/__init__.py:128: UserWarning: CUDA initialization: CUDA unknown error - this may be due to an incorrectly set up environment, e.g. changing env variable CUDA_VISIBLE_DEVICES after program start. Setting the available devices to be zero. (Triggered internally at ../c10/cuda/CUDAFunctions.cpp:108.)
+  return torch._C._cuda_getDeviceCount() > 0
+Loading datasets...
+Datasets + dataloaders ready.
+
+Building pruned architecture...
+Loaded pruned weights. Missing keys: 0, Unexpected keys: 0
+Sanity output shape: (1, 64) (expected (1, 64))
+
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+[2026-02-12T01:41:29.399] error: *** JOB 367054 ON xgpe6 CANCELLED AT 2026-02-12T01:41:29 DUE to SIGNAL Terminated ***
+[2026-02-12T01:41:29.400] error: *** STEP 367054.1 ON xgpe6 CANCELLED AT 2026-02-12T01:41:29 DUE to SIGNAL Terminated ***
+Original parameter count: 5497144
+Dropped behave_transformer layers -> 4
+Dropped imu_transformer layers -> 4
+Output shape: (1, 64) (expected: (1, 64))
+Pruning complete!
+Parameters: 5497144 -> 5440664 (1.03% reduction)
+Saved state_dict to: prune_structured_iterative_rd3_state_dict.pt
+/home/i/ibnu2651/miniconda3/envs/BehaveFormer/lib/python3.10/site-packages/torch/cuda/__init__.py:128: UserWarning: CUDA initialization: CUDA unknown error - this may be due to an incorrectly set up environment, e.g. changing env variable CUDA_VISIBLE_DEVICES after program start. Setting the available devices to be zero. (Triggered internally at ../c10/cuda/CUDAFunctions.cpp:108.)
+  return torch._C._cuda_getDeviceCount() > 0
+Loading datasets...
+Datasets + dataloaders ready.
+
+Building pruned architecture...
+Loaded pruned weights. Missing keys: 0, Unexpected keys: 0
+Sanity output shape: (1, 64) (expected (1, 64))
+
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+[2026-02-12T01:42:39.995] error: *** JOB 367056 ON xgpe6 CANCELLED AT 2026-02-12T01:42:39 DUE to SIGNAL Terminated ***
+[2026-02-12T01:42:39.999] error: *** STEP 367056.1 ON xgpe6 CANCELLED AT 2026-02-12T01:42:39 DUE to SIGNAL Terminated ***
+Original parameter count: 5497144
+Dropped behave_transformer layers -> 4
+Dropped imu_transformer layers -> 4
+Output shape: (1, 64) (expected: (1, 64))
+Pruning complete!
+Parameters: 5497144 -> 5440664 (1.03% reduction)
+Saved state_dict to: prune_structured_iterative_rd3_state_dict.pt
+/home/i/ibnu2651/miniconda3/envs/BehaveFormer/lib/python3.10/site-packages/torch/cuda/__init__.py:128: UserWarning: CUDA initialization: CUDA unknown error - this may be due to an incorrectly set up environment, e.g. changing env variable CUDA_VISIBLE_DEVICES after program start. Setting the available devices to be zero. (Triggered internally at ../c10/cuda/CUDAFunctions.cpp:108.)
+  return torch._C._cuda_getDeviceCount() > 0
+Loading datasets...
+Datasets + dataloaders ready.
+
+Building pruned architecture...
+Loaded pruned weights. Missing keys: 0, Unexpected keys: 0
+Sanity output shape: (1, 64) (expected (1, 64))
+
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+[2026-02-12T01:45:44.172] error: *** JOB 367060 ON xgpe6 CANCELLED AT 2026-02-12T01:45:44 DUE to SIGNAL Terminated ***
+[2026-02-12T01:45:44.173] error: *** STEP 367060.1 ON xgpe6 CANCELLED AT 2026-02-12T01:45:44 DUE to SIGNAL Terminated ***
+Original parameter count: 5497144
+Dropped behave_transformer layers -> 4
+Dropped imu_transformer layers -> 4
+Output shape: (1, 64) (expected: (1, 64))
+Pruning complete!
+Parameters: 5497144 -> 5440664 (1.03% reduction)
+Saved state_dict to: prune_structured_iterative_rd3_state_dict.pt
+/home/i/ibnu2651/miniconda3/envs/BehaveFormer/lib/python3.10/site-packages/torch/cuda/__init__.py:128: UserWarning: CUDA initialization: CUDA unknown error - this may be due to an incorrectly set up environment, e.g. changing env variable CUDA_VISIBLE_DEVICES after program start. Setting the available devices to be zero. (Triggered internally at ../c10/cuda/CUDAFunctions.cpp:108.)
+  return torch._C._cuda_getDeviceCount() > 0
+Loading datasets...
+Datasets + dataloaders ready.
+
+Building pruned architecture...
+Loaded pruned weights. Missing keys: 0, Unexpected keys: 0
+Sanity output shape: (1, 64) (expected (1, 64))
+
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+[2026-02-12T01:47:50.883] error: *** JOB 367063 ON xgpe6 CANCELLED AT 2026-02-12T01:47:50 DUE to SIGNAL Terminated ***
+[2026-02-12T01:47:50.884] error: *** STEP 367063.1 ON xgpe6 CANCELLED AT 2026-02-12T01:47:50 DUE to SIGNAL Terminated ***
+=== SLURM DEBUG ===
+JobID: 367066
+Partition: gpu
+NodeList: xgpe6
+CUDA_VISIBLE_DEVICES=0
+NVIDIA_VISIBLE_DEVICES=
+LD_LIBRARY_PATH=
+PATH=/usr/local/cuda-12.9/bin:/home/i/ibnu2651/.vscode-server/bin/7d842fb85a0275a4a8e4d7e040d2625abbf7f084/bin/remote-cli:/usr/local/cuda-12.9/bin:/usr/local/cuda-12.9/bin:/home/i/ibnu2651/miniconda3/envs/BehaveFormer/bin:/home/i/ibnu2651/miniconda3/condabin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+Which python: /home/i/ibnu2651/miniconda3/envs/BehaveFormer/bin/python
+Python 3.10.12
+=== nvidia-smi ===
+No devices were found
+nvidia-smi failed
+=== lspci (NVIDIA) ===
+d8:00.0 VGA compatible controller: NVIDIA Corporation TU102 [TITAN RTX] (rev a1)
+d8:00.1 Audio device: NVIDIA Corporation TU102 High Definition Audio Controller (rev a1)
+d8:00.2 USB controller: NVIDIA Corporation TU102 USB 3.1 Host Controller (rev a1)
+d8:00.3 Serial bus controller: NVIDIA Corporation TU102 USB Type-C UCSI Controller (rev a1)
+=== Torch CUDA probe ===
+/home/i/ibnu2651/miniconda3/envs/BehaveFormer/lib/python3.10/site-packages/torch/cuda/__init__.py:128: UserWarning: CUDA initialization: CUDA unknown error - this may be due to an incorrectly set up environment, e.g. changing env variable CUDA_VISIBLE_DEVICES after program start. Setting the available devices to be zero. (Triggered internally at ../c10/cuda/CUDAFunctions.cpp:108.)
+  return torch._C._cuda_getDeviceCount() > 0
+torch: 2.4.1+cu118
+torch.version.cuda: 11.8
+CUDA_VISIBLE_DEVICES: 0
+is_available: False
+device_count: 0
+Original parameter count: 5497144
+Dropped behave_transformer layers -> 4
+Dropped imu_transformer layers -> 4
+Output shape: (1, 64) (expected: (1, 64))
+Pruning complete!
+Parameters: 5497144 -> 5440664 (1.03% reduction)
+Saved state_dict to: prune_structured_iterative_rd3_state_dict.pt
+/home/i/ibnu2651/miniconda3/envs/BehaveFormer/lib/python3.10/site-packages/torch/cuda/__init__.py:128: UserWarning: CUDA initialization: CUDA unknown error - this may be due to an incorrectly set up environment, e.g. changing env variable CUDA_VISIBLE_DEVICES after program start. Setting the available devices to be zero. (Triggered internally at ../c10/cuda/CUDAFunctions.cpp:108.)
+  return torch._C._cuda_getDeviceCount() > 0
+Loading datasets...
+Datasets + dataloaders ready.
+
+Building pruned architecture...
+Loaded pruned weights. Missing keys: 0, Unexpected keys: 0
+Sanity output shape: (1, 64) (expected (1, 64))
+
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+[2026-02-12T01:49:46.717] error: *** JOB 367066 ON xgpe6 CANCELLED AT 2026-02-12T01:49:46 DUE to SIGNAL Terminated ***
+[2026-02-12T01:49:46.718] error: *** STEP 367066.1 ON xgpe6 CANCELLED AT 2026-02-12T01:49:46 DUE to SIGNAL Terminated ***
+Original parameter count: 5497144
+Dropped behave_transformer layers -> 4
+Dropped imu_transformer layers -> 4
+Output shape: (1, 64) (expected: (1, 64))
+Pruning complete!
+Parameters: 5497144 -> 5440664 (1.03% reduction)
+Saved state_dict to: prune_structured_iterative_rd3_state_dict.pt
+Loading datasets...
+Datasets + dataloaders ready.
+
+Building pruned architecture...
+Loaded pruned weights. Missing keys: 0, Unexpected keys: 0
+Sanity output shape: (1, 64) (expected (1, 64))
+
+Epoch 1/10 | Loss: 0.041016 | Val EER: 0.5495
+Epoch 2/10 | Loss: 0.029680 | Val EER: 0.4121
+Epoch 3/10 | Loss: 0.026046 | Val EER: 0.5495
+Epoch 4/10 | Loss: 0.018948 | Val EER: 0.8242
+Epoch 5/10 | Loss: 0.017827 | Val EER: 0.6868
+Epoch 6/10 | Loss: 0.015657 | Val EER: 0.8242
+Epoch 7/10 | Loss: 0.012658 | Val EER: 0.8242
+Epoch 8/10 | Loss: 0.011389 | Val EER: 0.6868
+Epoch 9/10 | Loss: 0.008587 | Val EER: 0.6868
+Epoch 10/10 | Loss: 0.009079 | Val EER: 0.5495
+
+Done. Best Val EER: inf
+Saved last: prune_structured_iterative_rd3_finetuned_last.pt
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([5, 50, 8]) torch.Size([5, 100, 36])
+Pytorch
+EER: 7.253605769230774 Usability: 0.9304380378275402 TCR: 2.644154691058826 FRWI: 0.004386666666666667 FAWI: 0.09937435897435898
