@@ -1,0 +1,74 @@
+Original parameter count: 6981744
+Dropped behave_transformer layers -> 1
+Dropped imu_transformer layers -> 1
+Output shape: (1, 64) (expected: (1, 64))
+Pruning complete!
+Parameters: 6981744 -> 6755824 (3.24% reduction)
+Saved state_dict to: prune_structured_1800_200_1.pt
+Loading datasets...
+Datasets + dataloaders ready.
+
+Building pruned architecture...
+Loaded pruned weights. Missing keys: 0, Unexpected keys: 0
+Sanity output shape: (1, 64) (expected (1, 64))
+
+Epoch 1/10 | Loss: 0.831388 | Val EER: 14.6978
+Epoch 2/10 | Loss: 0.403870 | Val EER: 9.4780
+Epoch 3/10 | Loss: 0.291563 | Val EER: 8.3791
+Epoch 4/10 | Loss: 0.220166 | Val EER: 5.6319
+Epoch 5/10 | Loss: 0.183003 | Val EER: 8.3791
+Epoch 6/10 | Loss: 0.160087 | Val EER: 8.2418
+Epoch 7/10 | Loss: 0.134481 | Val EER: 6.1813
+Epoch 8/10 | Loss: 0.117109 | Val EER: 6.0440
+Epoch 9/10 | Loss: 0.113034 | Val EER: 5.7692
+Epoch 10/10 | Loss: 0.087238 | Val EER: 5.6319
+
+Done. Best Val EER: inf
+Saved last: prune_structured_1800_200_1_last.pt
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([5, 50, 8]) torch.Size([5, 100, 36])
+Pytorch
+EER: 11.195913461538467 Usability: 0.9095722572413151 TCR: 3.300423796494527 FRWI: 0.0046010256410256405 FAWI: 0.1277728205128205
+Traceback (most recent call last):
+  File "/home/i/ibnu2651/BehaveFormer/pruning/export_to_onnx.py", line 12, in <module>
+    parser = argparse.ArgumentParser()
+NameError: name 'argparse' is not defined
+srun: error: xgpc0: task 0: Exited with exit code 1
+/home/i/ibnu2651/BehaveFormer/pruning/export_to_onnx.py:78: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  state = torch.load(f"prune_structured_{args.config}_last.pt", map_location="cpu")
+ONNX export successful
+[1;31m2026-03-04 23:08:54.591754745 [E:onnxruntime:Default, env.cc:226 ThreadMain] pthread_setaffinity_np failed for thread: 113275, index: 3, mask: {4, 20, }, error code: 22 error msg: Invalid argument. Specify the number of threads explicitly so the affinity is not set.[m
+[1;31m2026-03-04 23:08:54.592216110 [E:onnxruntime:Default, env.cc:226 ThreadMain] pthread_setaffinity_np failed for thread: 113272, index: 0, mask: {1, 17, }, error code: 22 error msg: Invalid argument. Specify the number of threads explicitly so the affinity is not set.[m
+[1;31m2026-03-04 23:08:54.591784721 [E:onnxruntime:Default, env.cc:226 ThreadMain] pthread_setaffinity_np failed for thread: 113276, index: 4, mask: {5, 21, }, error code: 22 error msg: Invalid argument. Specify the number of threads explicitly so the affinity is not set.[m
+[1;31m2026-03-04 23:08:54.595725312 [E:onnxruntime:Default, env.cc:226 ThreadMain] pthread_setaffinity_np failed for thread: 113274, index: 2, mask: {3, 19, }, error code: 22 error msg: Invalid argument. Specify the number of threads explicitly so the affinity is not set.[m
+[1;31m2026-03-04 23:08:54.598426100 [E:onnxruntime:Default, env.cc:226 ThreadMain] pthread_setaffinity_np failed for thread: 113277, index: 5, mask: {6, 22, }, error code: 22 error msg: Invalid argument. Specify the number of threads explicitly so the affinity is not set.[m
+[1;31m2026-03-04 23:08:54.599409611 [E:onnxruntime:Default, env.cc:226 ThreadMain] pthread_setaffinity_np failed for thread: 113273, index: 1, mask: {2, 18, }, error code: 22 error msg: Invalid argument. Specify the number of threads explicitly so the affinity is not set.[m
+[1;31m2026-03-04 23:08:54.616398277 [E:onnxruntime:Default, env.cc:226 ThreadMain] pthread_setaffinity_np failed for thread: 113278, index: 6, mask: {7, 23, }, error code: 22 error msg: Invalid argument. Specify the number of threads explicitly so the affinity is not set.[m
+[1;31m2026-03-04 23:08:54.616608184 [E:onnxruntime:Default, env.cc:226 ThreadMain] pthread_setaffinity_np failed for thread: 113279, index: 7, mask: {8, 24, }, error code: 22 error msg: Invalid argument. Specify the number of threads explicitly so the affinity is not set.[m
+[1;31m2026-03-04 23:08:54.616672474 [E:onnxruntime:Default, env.cc:226 ThreadMain] pthread_setaffinity_np failed for thread: 113280, index: 8, mask: {9, 25, }, error code: 22 error msg: Invalid argument. Specify the number of threads explicitly so the affinity is not set.[m
+[1;31m2026-03-04 23:08:54.616733741 [E:onnxruntime:Default, env.cc:226 ThreadMain] pthread_setaffinity_np failed for thread: 113281, index: 9, mask: {10, 26, }, error code: 22 error msg: Invalid argument. Specify the number of threads explicitly so the affinity is not set.[m
+[1;31m2026-03-04 23:08:54.616795596 [E:onnxruntime:Default, env.cc:226 ThreadMain] pthread_setaffinity_np failed for thread: 113282, index: 10, mask: {11, 27, }, error code: 22 error msg: Invalid argument. Specify the number of threads explicitly so the affinity is not set.[m
+[1;31m2026-03-04 23:08:54.616848947 [E:onnxruntime:Default, env.cc:226 ThreadMain] pthread_setaffinity_np failed for thread: 113283, index: 11, mask: {12, 28, }, error code: 22 error msg: Invalid argument. Specify the number of threads explicitly so the affinity is not set.[m
+[1;31m2026-03-04 23:08:54.616900727 [E:onnxruntime:Default, env.cc:226 ThreadMain] pthread_setaffinity_np failed for thread: 113284, index: 12, mask: {13, 29, }, error code: 22 error msg: Invalid argument. Specify the number of threads explicitly so the affinity is not set.[m
+[1;31m2026-03-04 23:08:54.616961019 [E:onnxruntime:Default, env.cc:226 ThreadMain] pthread_setaffinity_np failed for thread: 113285, index: 13, mask: {14, 30, }, error code: 22 error msg: Invalid argument. Specify the number of threads explicitly so the affinity is not set.[m
+[1;31m2026-03-04 23:08:54.621355823 [E:onnxruntime:Default, env.cc:226 ThreadMain] pthread_setaffinity_np failed for thread: 113286, index: 14, mask: {15, 31, }, error code: 22 error msg: Invalid argument. Specify the number of threads explicitly so the affinity is not set.[m
+(1, 64)

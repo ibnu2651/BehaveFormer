@@ -7,8 +7,13 @@ from model.behaveformer import BehaveFormer
 
 import onnxruntime as ort
 import numpy as np
+import argparse
 
 # ===== rebuild PRUNED architecture =====
+parser = argparse.ArgumentParser()
+parser.add_argument("config", type=str, help="config")
+args = parser.parse_args()
+
 imu_type = "acc_gyr_mag"
 
 model = BehaveFormer(8, 36, 50, 100, 64, 20, 4, 10, 6, 10, imu_type)
@@ -59,18 +64,18 @@ def keep_first_n_encoder_layers(transformer_module, n: int):
     transformer_module.encoder.layers = nn.ModuleList(list(layers[:n]))
 
 
-new_imu_hidden = 1200
+new_imu_hidden = 1400
 new_behave_hidden = 160
-new_num_layers_behave = 3
-new_num_layers_imu = 3
+new_num_layers_behave = 4
+new_num_layers_imu = 4
 
 prune_two_linear_mlp(model.linear_imu, new_hidden=new_imu_hidden)
 prune_two_linear_mlp(model.linear_behave, new_hidden=new_behave_hidden)
-# keep_first_n_encoder_layers(model.behave_transformer, new_num_layers_behave)
-# keep_first_n_encoder_layers(model.imu_transformer, new_num_layers_imu)
+keep_first_n_encoder_layers(model.behave_transformer, new_num_layers_behave)
+keep_first_n_encoder_layers(model.imu_transformer, new_num_layers_imu)
 
 # load fine-tuned weights
-state = torch.load("prune_structured_linearonly_finetuned_last.pt", map_location="cpu")
+state = torch.load(f"prune_structured_{args.config}_last.pt", map_location="cpu")
 model.load_state_dict(state, strict=True)
 
 model.eval()
@@ -84,7 +89,7 @@ dummy_input = ([dummy_scroll, dummy_imu])
 torch.onnx.export(
     model,
     dummy_input,
-    "prune_structured_linearonly_finetuned_last.onnx",
+    f"prune_structured_{args.config}_last.onnx",
     opset_version=17,
     input_names=["touch_inputs", "imu_inputs"],
     output_names=["output"],
@@ -98,7 +103,7 @@ torch.onnx.export(
 print("ONNX export successful")
 
 
-sess = ort.InferenceSession("prune_structured_linearonly_finetuned_last.onnx")
+sess = ort.InferenceSession(f"prune_structured_{args.config}_last.onnx")
 
 out = sess.run(
     None,

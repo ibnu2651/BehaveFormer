@@ -11,6 +11,7 @@ from model.loss import TripletLoss
 from model.dataset import HUMITrainDataset, HUMITestDataset
 from evaluation.metrics import Metric
 from utils.utils import read_pickle
+import argparse
 
 
 def move_positional_encoding_tensors_to_device(model, device):
@@ -123,7 +124,7 @@ def keep_first_n_encoder_layers(transformer_module, n: int):
     transformer_module.encoder.layers = nn.ModuleList(list(transformer_module.encoder.layers[:n]))
 
 
-def main():
+def main(config):
     imu_type = "acc_gyr_mag"
 
     new_imu_hidden = 1400
@@ -138,10 +139,9 @@ def main():
     # Files
     base_dir = "/home/i/ibnu2651/BehaveFormer/Humidb2/scroll50downup_imu100all"
     # val_base_dir = "/home/i/ibnu2651/BehaveFormer/Humidb/scroll50downup_imu100all"
-    ckpt_structured_pruned = "prune_structured_iterative_rd3_state_dict.pt"
+    ckpt_structured_pruned = f"prune_structured_{config}.pt"
     # out_best = "prune_structured_encoderonly_finetuned_best.pt"
-    out_last = "prune_structured_iterative_rd3_finetuned_last.pt"
-
+    out_last = f"prune_structured_{config}_last.pt"
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     # Load datasets
@@ -177,21 +177,21 @@ def main():
     model.eval()
 
     # Apply same structural changes as the pruning plan
-    # prune_two_linear_mlp(model.linear_imu, new_hidden=new_imu_hidden, importance_from="fc2_l1")
-    # prune_two_linear_mlp(model.linear_behave, new_hidden=new_behave_hidden, importance_from="fc2_l1")
+    prune_two_linear_mlp(model.linear_imu, new_hidden=new_imu_hidden, importance_from="fc2_l1")
+    prune_two_linear_mlp(model.linear_behave, new_hidden=new_behave_hidden, importance_from="fc2_l1")
 
     # Build architecture that matches the checkpoint (deterministic)
-    if imu_type != "none":
-        resize_two_linear_mlp(model.linear_imu, new_hidden=new_imu_hidden)
-    resize_two_linear_mlp(model.linear_behave, new_hidden=new_behave_hidden)
+    # if imu_type != "none":
+    #     resize_two_linear_mlp(model.linear_imu, new_hidden=new_imu_hidden)
+    # resize_two_linear_mlp(model.linear_behave, new_hidden=new_behave_hidden)
 
-    keep_first_n_encoder_layers(model.behave_transformer, new_num_layers_behave)
-    if imu_type != "none":
-        keep_first_n_encoder_layers(model.imu_transformer, new_num_layers_imu)
+    # keep_first_n_encoder_layers(model.behave_transformer, new_num_layers_behave)
+    # if imu_type != "none":
+    #     keep_first_n_encoder_layers(model.imu_transformer, new_num_layers_imu)
 
     # Now load should be strict if the numbers match
-    pruned_sd = torch.load(ckpt_structured_pruned, map_location="cpu", weights_only=True)
-    model.load_state_dict(pruned_sd, strict=True)
+    # pruned_sd = torch.load(ckpt_structured_pruned, map_location="cpu", weights_only=True)
+    # model.load_state_dict(pruned_sd, strict=True)
 
     keep_first_n_encoder_layers(model.behave_transformer, new_num_layers_behave)
     keep_first_n_encoder_layers(model.imu_transformer, new_num_layers_imu)
@@ -254,4 +254,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("config", type=str, help="config")
+    args = parser.parse_args()
+
+    main(args.config)

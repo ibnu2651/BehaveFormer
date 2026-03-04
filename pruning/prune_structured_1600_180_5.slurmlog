@@ -1,0 +1,50 @@
+Original parameter count: 6981744
+Pruned linear_imu hidden -> 1600
+Pruned linear_behave hidden -> 180
+Output shape: (1, 64) (expected: (1, 64))
+Pruning complete!
+Parameters: 6981744 -> 6239444 (10.63% reduction)
+Saved state_dict to: prune_structured_1600_180_5.pt
+Loading datasets...
+Datasets + dataloaders ready.
+
+Building pruned architecture...
+Loaded pruned weights. Missing keys: 0, Unexpected keys: 0
+Sanity output shape: (1, 64) (expected (1, 64))
+
+Epoch 1/10 | Loss: 0.032870 | Val EER: 0.4121
+Epoch 2/10 | Loss: 0.026743 | Val EER: 0.4121
+Epoch 3/10 | Loss: 0.023180 | Val EER: 0.4121
+Epoch 4/10 | Loss: 0.019078 | Val EER: 0.2747
+Epoch 5/10 | Loss: 0.015973 | Val EER: 0.4121
+Epoch 6/10 | Loss: 0.012191 | Val EER: 0.4121
+Epoch 7/10 | Loss: 0.013151 | Val EER: 0.2747
+Epoch 8/10 | Loss: 0.012000 | Val EER: 0.2747
+Epoch 9/10 | Loss: 0.009715 | Val EER: 0.2747
+Epoch 10/10 | Loss: 0.008140 | Val EER: 0.4121
+
+Done. Best Val EER: inf
+Saved last: prune_structured_1600_180_5_last.pt
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([16, 50, 8]) torch.Size([16, 100, 36])
+torch.Size([5, 50, 8]) torch.Size([5, 100, 36])
+Pytorch
+EER: 5.18629807692308 Usability: 0.963488164328667 TCR: 2.680070750505085 FRWI: 0.001001025641025641 FAWI: 0.09062410256410257

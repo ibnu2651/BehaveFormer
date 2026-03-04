@@ -10,6 +10,7 @@ from torch.utils.data import DataLoader
 from torch import nn
 import json
 from evaluation.metrics import Metric
+import argparse
 
 def get_periods(user_id, num_enroll_sess, num_verify_sess=None, user_session_count=None, dataset='humi'):
     def get_window_time_humi(seqs):
@@ -107,8 +108,13 @@ def resize_two_linear_mlp(seq: nn.Sequential, new_hidden: int):
     seq[0] = new_fc1
     seq[3] = new_fc2
 
+parser = argparse.ArgumentParser()
+parser.add_argument("config", type=str, help="config")
+args = parser.parse_args()
 
-model_path = "/home/i/ibnu2651/BehaveFormer/pruning/prune_structured_iterative_rd3_finetuned_last.pt"
+model_path = f"/home/i/ibnu2651/BehaveFormer/pruning/prune_structured_{args.config}_last.pt"
+# model_path = f"/home/i/ibnu2651/BehaveFormer/work_dirs/humi_scroll50down_imu100all_epoch500_enroll3_b128/20231026_155303/best_models/epoch_210_eer_2.60817307692308.pt"
+
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -118,11 +124,11 @@ new_num_layers_behave = 4
 new_num_layers_imu = 4
 
 model = BehaveFormer(8, 36, 50, 100, 64, 20, 4, 10, 6, 10, "acc_gyr_mag")
-# prune_two_linear_mlp(model.linear_imu, new_hidden=new_imu_hidden)
-# prune_two_linear_mlp(model.linear_behave, new_hidden=new_behave_hidden)
+prune_two_linear_mlp(model.linear_imu, new_hidden=new_imu_hidden)
+prune_two_linear_mlp(model.linear_behave, new_hidden=new_behave_hidden)
 
-resize_two_linear_mlp(model.linear_imu, new_hidden=new_imu_hidden)
-resize_two_linear_mlp(model.linear_behave, new_hidden=new_behave_hidden)
+# resize_two_linear_mlp(model.linear_imu, new_hidden=new_imu_hidden)
+# resize_two_linear_mlp(model.linear_behave, new_hidden=new_behave_hidden)
 
 keep_first_n_encoder_layers(model.behave_transformer, new_num_layers_behave)
 keep_first_n_encoder_layers(model.imu_transformer, new_num_layers_imu)

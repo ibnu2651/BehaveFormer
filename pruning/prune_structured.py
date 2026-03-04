@@ -4,6 +4,7 @@ sys.path.append("..")
 import torch
 from torch import nn
 from model.behaveformer import BehaveFormer
+import argparse
 
 
 @torch.no_grad()
@@ -107,7 +108,7 @@ def count_params(m: nn.Module) -> int:
     return sum(p.numel() for p in m.parameters())
 
 
-def main():
+def main(config):
     # ---- Load model (your config) ----
     model = BehaveFormer(
         behave_feature_dim=8,
@@ -124,15 +125,15 @@ def main():
         # num_layer is default=5 in your class unless you changed it elsewhere
     )
 
-    # ckpt_path = "/home/i/ibnu2651/BehaveFormer/work_dirs/humi_scroll50down_imu100all_epoch500_enroll3_b128/20231026_155303/best_models/epoch_210_eer_2.60817307692308.pt"
-    ckpt_path = "/home/i/ibnu2651/BehaveFormer/pruning/prune_structured_iterative_rd2_finetuned_last.pt"
+    ckpt_path = "/home/i/ibnu2651/BehaveFormer/work_dirs/humi_scroll50down_imu100all_epoch500_enroll3_b128/20231026_155303/best_models/epoch_210_eer_2.60817307692308.pt"
+    # ckpt_path = "/home/i/ibnu2651/BehaveFormer/pruning/prune_structured_iterative_rd2_finetuned_last.pt"
 
-    curr_imu_hidden = 1400
-    curr_behave_hidden = 160
+    curr_imu_hidden = 1800
+    curr_behave_hidden = 200
     curr_layers = 5
 
-    resize_two_linear_mlp(model.linear_imu, curr_imu_hidden)
-    resize_two_linear_mlp(model.linear_behave, curr_behave_hidden)
+    # resize_two_linear_mlp(model.linear_imu, curr_imu_hidden)
+    # resize_two_linear_mlp(model.linear_behave, curr_behave_hidden)
 
     state = torch.load(ckpt_path, map_location=torch.device("cpu"), weights_only=True)
     model.load_state_dict(state)
@@ -155,12 +156,12 @@ def main():
 
 
     # ---- Apply structured pruning (MLP hidden width) ----
-    # if model.imu_type != "none":
-    #     prune_two_linear_mlp(model.linear_imu, new_hidden=new_imu_hidden, importance_from="fc2_l1")
-    #     print(f"Pruned linear_imu hidden -> {new_imu_hidden}")
+    if model.imu_type != "none":
+        prune_two_linear_mlp(model.linear_imu, new_hidden=new_imu_hidden, importance_from="fc2_l1")
+        print(f"Pruned linear_imu hidden -> {new_imu_hidden}")
 
-    # prune_two_linear_mlp(model.linear_behave, new_hidden=new_behave_hidden, importance_from="fc2_l1")
-    # print(f"Pruned linear_behave hidden -> {new_behave_hidden}")
+    prune_two_linear_mlp(model.linear_behave, new_hidden=new_behave_hidden, importance_from="fc2_l1")
+    print(f"Pruned linear_behave hidden -> {new_behave_hidden}")
 
     # ---- Drop transformer layers ----
     keep_first_n_encoder_layers(model.behave_transformer, new_num_layers_behave)
@@ -186,7 +187,7 @@ def main():
     print(f"Parameters: {params_before} -> {params_after} ({100*(1-params_after/params_before):.2f}% reduction)")
 
     # ---- Save ----
-    output_path_sd = "prune_structured_iterative_rd3_state_dict.pt"
+    output_path_sd = f"prune_structured_{config}.pt"
     # output_path_full = "prune_structured_full_model.pt"
 
     torch.save(model.state_dict(), output_path_sd)
@@ -197,4 +198,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("config", type=str, help="config")
+    args = parser.parse_args()
+
+    main(args.config)
