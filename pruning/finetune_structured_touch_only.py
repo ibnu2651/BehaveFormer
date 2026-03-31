@@ -125,7 +125,7 @@ def keep_first_n_encoder_layers(transformer_module, n: int):
 
 
 def main(config):
-    imu_type = "acc_gyr_mag"
+    imu_type = "none"
 
     new_imu_hidden = 200
     new_behave_hidden = 40
@@ -139,9 +139,9 @@ def main(config):
     # Files
     base_dir = "/home/i/ibnu2651/BehaveFormer/Humidb2/scroll50downup_imu100all"
     # val_base_dir = "/home/i/ibnu2651/BehaveFormer/Humidb/scroll50downup_imu100all"
-    ckpt_structured_pruned = f"prune_structured_{config}.pt"
+    ckpt_structured_pruned = f"prune_structured_touch_only_{config}.pt"
     # out_best = "prune_structured_encoderonly_finetuned_best.pt"
-    out_last = f"prune_structured_{config}_last.pt"
+    out_last = f"prune_structured_touch_only_{config}_last.pt"
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     # Load datasets
@@ -177,7 +177,8 @@ def main(config):
     model.eval()
 
     # Apply same structural changes as the pruning plan
-    prune_two_linear_mlp(model.linear_imu, new_hidden=new_imu_hidden, importance_from="fc2_l1")
+    if imu_type != "none":
+        prune_two_linear_mlp(model.linear_imu, new_hidden=new_imu_hidden, importance_from="fc2_l1")
     prune_two_linear_mlp(model.linear_behave, new_hidden=new_behave_hidden, importance_from="fc2_l1")
 
     # Build architecture that matches the checkpoint (deterministic)
@@ -194,7 +195,8 @@ def main(config):
     # model.load_state_dict(pruned_sd, strict=True)
 
     keep_first_n_encoder_layers(model.behave_transformer, new_num_layers_behave)
-    keep_first_n_encoder_layers(model.imu_transformer, new_num_layers_imu)
+    if imu_type != "none":
+        keep_first_n_encoder_layers(model.imu_transformer, new_num_layers_imu)
 
     # Now load weights from the already-pruned checkpoint
     pruned_sd = torch.load(ckpt_structured_pruned, map_location="cpu", weights_only=True)
@@ -207,7 +209,7 @@ def main(config):
 
     # Sanity forward
     with torch.no_grad():
-        y = model([torch.rand(1, 50, 8).to(device), torch.rand(1, 100, 36).to(device)])
+        y = model(torch.rand(1, 50, 8).to(device))
     print(f"Sanity output shape: {tuple(y.shape)} (expected (1, {target_len}))\n")
 
     # Finetune
@@ -225,9 +227,9 @@ def main(config):
             optimizer.zero_grad()
 
             # Forward (tuple inputs)
-            anchor_out = model([anchor[0].to(device).float(), anchor[1].to(device).float()])
-            positive_out = model([positive[0].to(device).float(), positive[1].to(device).float()])
-            negative_out = model([negative[0].to(device).float(), negative[1].to(device).float()])
+            anchor_out = model(anchor.to(device).float())
+            positive_out = model(positive.to(device).float())
+            negative_out = model(negative.to(device).float())
 
             loss = loss_fn(anchor_out, positive_out, negative_out)
             loss.backward()

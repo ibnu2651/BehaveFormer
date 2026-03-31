@@ -121,11 +121,11 @@ def main(config):
         behave_channel_heads=10,
         imu_temporal_heads=6,
         imu_channel_heads=10,
-        imu_type="acc_gyr_mag",
+        imu_type="none",
         # num_layer is default=5 in your class unless you changed it elsewhere
     )
 
-    ckpt_path = "/home/i/ibnu2651/BehaveFormer/work_dirs/humi_scroll50down_imu100all_epoch500_enroll3_b128/20231026_155303/best_models/epoch_210_eer_2.60817307692308.pt"
+    ckpt_path = "/home/i/ibnu2651/BehaveFormer/work_dirs/humi_scroll50down_epoch500_enroll3_b128/20231026_155605/best_models/epoch_445_eer_21.550480769230774.pt"
     # ckpt_path = "/home/i/ibnu2651/BehaveFormer/pruning/prune_structured_iterative_rd2_finetuned_last.pt"
 
     curr_imu_hidden = 1800
@@ -187,7 +187,7 @@ def main(config):
     print(f"Parameters: {params_before} -> {params_after} ({100*(1-params_after/params_before):.2f}% reduction)")
 
     # ---- Save ----
-    output_path_sd = f"prune_structured_{config}.pt"
+    output_path_sd = f"prune_structured_touch_only_{config}.pt"
     # output_path_full = "prune_structured_full_model.pt"
 
     torch.save(model.state_dict(), output_path_sd)
