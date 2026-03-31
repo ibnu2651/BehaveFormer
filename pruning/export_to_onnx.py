@@ -64,10 +64,10 @@ def keep_first_n_encoder_layers(transformer_module, n: int):
     transformer_module.encoder.layers = nn.ModuleList(list(layers[:n]))
 
 
-new_imu_hidden = 1400
-new_behave_hidden = 160
-new_num_layers_behave = 4
-new_num_layers_imu = 4
+new_imu_hidden = 200
+new_behave_hidden = 40
+new_num_layers_behave = 3
+new_num_layers_imu = 3
 
 prune_two_linear_mlp(model.linear_imu, new_hidden=new_imu_hidden)
 prune_two_linear_mlp(model.linear_behave, new_hidden=new_behave_hidden)
