@@ -226,10 +226,13 @@ def main(config):
         for batch_idx, (anchor, positive, negative) in enumerate(train_dataloader):
             optimizer.zero_grad()
 
-            # Forward (tuple inputs)
-            anchor_out = model(anchor.to(device).float())
-            positive_out = model(positive.to(device).float())
-            negative_out = model(negative.to(device).float())
+            anchor_x = anchor[0] if isinstance(anchor, (list, tuple)) else anchor
+            positive_x = positive[0] if isinstance(positive, (list, tuple)) else positive
+            negative_x = negative[0] if isinstance(negative, (list, tuple)) else negative
+
+            anchor_out = model(anchor_x.to(device).float())
+            positive_out = model(positive_x.to(device).float())
+            negative_out = model(negative_x.to(device).float())
 
             loss = loss_fn(anchor_out, positive_out, negative_out)
             loss.backward()
