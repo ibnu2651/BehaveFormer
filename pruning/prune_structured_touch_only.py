@@ -151,8 +151,8 @@ def main(config):
     new_behave_hidden = 40
 
     # layer dropping: 5 -> 3 for balanced
-    new_num_layers_behave = 2
-    new_num_layers_imu = 2
+    new_num_layers_behave = 4
+    new_num_layers_imu = 4
 
 
     # ---- Apply structured pruning (MLP hidden width) ----
@@ -164,12 +164,12 @@ def main(config):
     print(f"Pruned linear_behave hidden -> {new_behave_hidden}")
 
     # ---- Drop transformer layers ----
-    # keep_first_n_encoder_layers(model.behave_transformer, new_num_layers_behave)
-    # print(f"Dropped behave_transformer layers -> {new_num_layers_behave}")
+    keep_first_n_encoder_layers(model.behave_transformer, new_num_layers_behave)
+    print(f"Dropped behave_transformer layers -> {new_num_layers_behave}")
 
-    # if model.imu_type != "none":
-    #     keep_first_n_encoder_layers(model.imu_transformer, new_num_layers_imu)
-    #     print(f"Dropped imu_transformer layers -> {new_num_layers_imu}")
+    if model.imu_type != "none":
+        keep_first_n_encoder_layers(model.imu_transformer, new_num_layers_imu)
+        print(f"Dropped imu_transformer layers -> {new_num_layers_imu}")
 
     # ---- Sanity forward pass (shape check) ----
     with torch.no_grad():

@@ -131,9 +131,9 @@ prune_two_linear_mlp(model.linear_behave, new_hidden=new_behave_hidden)
 # resize_two_linear_mlp(model.linear_imu, new_hidden=new_imu_hidden)
 # resize_two_linear_mlp(model.linear_behave, new_hidden=new_behave_hidden)
 
-# keep_first_n_encoder_layers(model.behave_transformer, new_num_layers_behave)
-# if model.imu_type != "none":
-#     keep_first_n_encoder_layers(model.imu_transformer, new_num_layers_imu)
+keep_first_n_encoder_layers(model.behave_transformer, new_num_layers_behave)
+if model.imu_type != "none":
+    keep_first_n_encoder_layers(model.imu_transformer, new_num_layers_imu)
 
 model.load_state_dict(torch.load(model_path, map_location=torch.device("cpu"), weights_only=True))
 model.to(device)
