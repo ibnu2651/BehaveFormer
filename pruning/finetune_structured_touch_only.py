@@ -194,9 +194,9 @@ def main(config):
     # pruned_sd = torch.load(ckpt_structured_pruned, map_location="cpu", weights_only=True)
     # model.load_state_dict(pruned_sd, strict=True)
 
-    keep_first_n_encoder_layers(model.behave_transformer, new_num_layers_behave)
-    if imu_type != "none":
-        keep_first_n_encoder_layers(model.imu_transformer, new_num_layers_imu)
+    # keep_first_n_encoder_layers(model.behave_transformer, new_num_layers_behave)
+    # if imu_type != "none":
+    #     keep_first_n_encoder_layers(model.imu_transformer, new_num_layers_imu)
 
     # Now load weights from the already-pruned checkpoint
     pruned_sd = torch.load(ckpt_structured_pruned, map_location="cpu", weights_only=True)
