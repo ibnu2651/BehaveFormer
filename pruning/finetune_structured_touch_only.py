@@ -129,8 +129,8 @@ def main(config):
 
     new_imu_hidden = 200
     new_behave_hidden = 40
-    new_num_layers_behave = 2
-    new_num_layers_imu = 2
+    new_num_layers_behave = 4
+    new_num_layers_imu = 4
 
     target_len = 64
     enroll_sessions = 3

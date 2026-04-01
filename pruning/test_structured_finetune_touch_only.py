@@ -120,8 +120,8 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 new_imu_hidden = 200
 new_behave_hidden = 40
-new_num_layers_behave = 2
-new_num_layers_imu = 2
+new_num_layers_behave = 4
+new_num_layers_imu = 4
 
 model = BehaveFormer(8, 36, 50, 100, 64, 20, 4, 10, 6, 10, "none")
 if model.imu_type != "none":
