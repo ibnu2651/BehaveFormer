@@ -39,8 +39,8 @@ def get_periods(user_id, num_enroll_sess, num_verify_sess=None):
 # =========================
 # Paths
 # =========================
-model_fp32_path = "/home/i/ibnu2651/BehaveFormer/pruning/prune_structured_200_40_3.onnx"
-model_int8_path = "/home/i/ibnu2651/BehaveFormer/pruning/prune_structured_200_40_3_int8.onnx"
+model_fp32_path = "/home/i/ibnu2651/BehaveFormer/pruning/prune_structured_200_40_3_last.onnx"
+model_int8_path = "/home/i/ibnu2651/BehaveFormer/pruning/prune_structured_200_40_3_last_int8.onnx"
 
 test_data_path = "/home/i/ibnu2651/BehaveFormer/Humidb/scroll50downup_imu100all/testing_scroll_imu_data_all.pickle"
 
