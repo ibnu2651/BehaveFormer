@@ -214,6 +214,8 @@ for i in range(pt_outputs.shape[0]):
 
 print("Pytorch\nEER:", 100 - np.mean(pt_acc, axis=0), "Usability:", np.mean(pt_usability, axis=0), "TCR:", np.mean(pt_tcr, axis=0), "FRWI:", np.mean(pt_frwi, axis=0) , "FAWI:", np.mean(pt_fawi, axis=0))
 
+
+all_scores.extend((-scores).detach().cpu().numpy())
 # Plot ROC curve
 all_scores = np.array(all_scores)
 all_labels = np.array(all_labels)
