@@ -12,5 +12,6 @@ config="200_40_3"
 
 # srun python prune_structured.py "$config"
 # srun -u python finetune_structured.py "$config"
-srun -u python test_structured_finetune_roc.py "$config"
+# srun -u python test_structured_finetune_roc.py "$config"
 # srun -u python export_to_onnx.py "$config"
+srun u python test_structured_finetune_roc_onnx.y "$config"
