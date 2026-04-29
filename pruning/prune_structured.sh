@@ -6,7 +6,7 @@
 #SBATCH --mem=16G
 #SBATCH --gres=gpu:1
 #SBATCH -p gpu
-#SBATCH --open-mode=append
+##SBATCH --open-mode=append
 
 config="200_40_3"
 
