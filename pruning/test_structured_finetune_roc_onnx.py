@@ -5,6 +5,7 @@ from model.dataset import HUMITestDataset
 import os
 from torch.utils.data import DataLoader
 from evaluation.metrics import Metric
+import argparse
 
 from sklearn.metrics import roc_curve, auc
 import matplotlib.pyplot as plt
@@ -19,7 +20,7 @@ def get_periods(user_id, num_enroll_sess, num_verify_sess=None):
         i = -1
         while end == 0:
             end = seq[i - 1][0]
-            i = i - 1
+            i -= 1
 
         return (end - start) / 1000
 
@@ -41,10 +42,24 @@ def get_periods(user_id, num_enroll_sess, num_verify_sess=None):
 
 
 # =========================
-# ONNX model path
+# Argument parser (MATCHES YOUR FIRST SCRIPT)
 # =========================
 
-model_int8_path = "/home/i/ibnu2651/BehaveFormer/work_dirs/humi_scroll50down_imu100all_epoch500_enroll3_b128/20231026_155303/best_models/model_int8.onnx"
+parser = argparse.ArgumentParser()
+parser.add_argument("config", type=str, help="config")
+args = parser.parse_args()
+
+
+# =========================
+# Model path using config
+# =========================
+
+model_int8_path = f"/home/i/ibnu2651/BehaveFormer/pruning/prune_structured_{args.config}_last_int8.onnx"
+
+
+# =========================
+# ONNX Runtime
+# =========================
 
 ort_session = ort.InferenceSession(
     model_int8_path,
@@ -76,8 +91,6 @@ onnx_outputs = []
 
 for batch in test_dataloader:
     behave_inputs, imu_inputs = batch
-
-    print(behave_inputs.shape, imu_inputs.shape)
 
     behave_np = behave_inputs.detach().cpu().numpy().astype(np.float32)
     imu_np = imu_inputs.detach().cpu().numpy().astype(np.float32)
@@ -128,16 +141,8 @@ all_labels = []
 for i in range(onnx_outputs.shape[0]):
     all_ver_embeddings = torch.cat([
         onnx_outputs[i, num_enroll_sessions:],
-        torch.flatten(
-            onnx_outputs[:i, num_enroll_sessions:],
-            start_dim=0,
-            end_dim=1
-        ),
-        torch.flatten(
-            onnx_outputs[i + 1:, num_enroll_sessions:],
-            start_dim=0,
-            end_dim=1
-        )
+        torch.flatten(onnx_outputs[:i, num_enroll_sessions:], start_dim=0, end_dim=1),
+        torch.flatten(onnx_outputs[i + 1:, num_enroll_sessions:], start_dim=0, end_dim=1)
     ], dim=0)
 
     scores = Metric.cal_session_distance_fixed_sessions(
@@ -145,19 +150,14 @@ for i in range(onnx_outputs.shape[0]):
         onnx_outputs[i, :num_enroll_sessions]
     )
 
-    periods = get_periods(
-        i,
-        num_enroll_sessions,
-        num_verify_sessions
-    )
+    periods = get_periods(i, num_enroll_sessions, num_verify_sessions)
 
     labels = torch.tensor(
         [1] * num_verify_sessions +
         [0] * (onnx_outputs.shape[0] - 1) * num_verify_sessions
     )
 
-    # ROC needs higher score = more likely genuine.
-    # Since scores are distances, use negative scores.
+    # IMPORTANT: invert distance for ROC
     all_scores.extend((-scores).detach().cpu().numpy())
     all_labels.extend(labels.detach().cpu().numpy())
 
@@ -179,7 +179,7 @@ for i in range(onnx_outputs.shape[0]):
 
 
 print(
-    "ONNX quantised\nEER:",
+    "ONNX\nEER:",
     100 - np.mean(onnx_acc, axis=0),
     "Usability:", np.mean(onnx_usability, axis=0),
     "TCR:", np.mean(onnx_tcr, axis=0),
@@ -189,7 +189,7 @@ print(
 
 
 # =========================
-# ROC curve
+# ROC Curve
 # =========================
 
 all_scores = np.array(all_scores)
@@ -199,15 +199,16 @@ fpr, tpr, thresholds = roc_curve(all_labels, all_scores)
 roc_auc = auc(fpr, tpr)
 
 plt.figure(figsize=(6, 6))
-plt.plot(fpr, tpr, label=f"ONNX ROC curve (AUC = {roc_auc:.4f})")
-plt.plot([0, 1], [0, 1], linestyle="--", label="Random classifier")
+plt.plot(fpr, tpr, label=f"ROC (AUC = {roc_auc:.4f})")
+plt.plot([0, 1], [0, 1], linestyle="--", label="Random")
 plt.xlabel("False Positive Rate")
 plt.ylabel("True Positive Rate")
-plt.title("ONNX Quantised ROC Curve")
+plt.title(f"ONNX ROC ({args.config})")
 plt.legend(loc="lower right")
 plt.grid(True)
 plt.tight_layout()
-plt.savefig("onnx_quantised_roc_curve.png", dpi=300)
+
+plt.savefig(f"onnx_roc_{args.config}.png", dpi=300)
 plt.show()
 
-print("ONNX ROC AUC:", roc_auc)
+print("ROC AUC:", roc_auc)
