@@ -196,7 +196,7 @@ for i in range(pt_outputs.shape[0]):
     periods = get_periods(i, num_enroll_sessions, num_verify_sessions)   #### use num_verify_sessions for period & also skip num_enroll_sessions
     labels = torch.tensor([1] * num_verify_sessions + [0] * (pt_outputs.shape[0] - 1) * num_verify_sessions)
 
-    all_scores.extend(scores.detach().cpu().numpy())
+    all_scores.extend((-scores).detach().cpu().numpy())
     all_labels.extend(labels.detach().cpu().numpy())
 
     acc, threshold = Metric.eer_compute(scores[:num_verify_sessions], scores[num_verify_sessions:])
@@ -215,7 +215,6 @@ for i in range(pt_outputs.shape[0]):
 print("Pytorch\nEER:", 100 - np.mean(pt_acc, axis=0), "Usability:", np.mean(pt_usability, axis=0), "TCR:", np.mean(pt_tcr, axis=0), "FRWI:", np.mean(pt_frwi, axis=0) , "FAWI:", np.mean(pt_fawi, axis=0))
 
 
-all_scores.extend((-scores).detach().cpu().numpy())
 # Plot ROC curve
 all_scores = np.array(all_scores)
 all_labels = np.array(all_labels)
