@@ -123,8 +123,8 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 new_imu_hidden = 200
 new_behave_hidden = 40
-new_num_layers_behave = 2
-new_num_layers_imu = 2
+new_num_layers_behave = 3
+new_num_layers_imu = 3
 
 model = BehaveFormer(8, 36, 50, 100, 64, 20, 4, 10, 6, 10, "acc_gyr_mag")
 prune_two_linear_mlp(model.linear_imu, new_hidden=new_imu_hidden)
