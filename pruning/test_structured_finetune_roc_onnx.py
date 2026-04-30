@@ -102,6 +102,14 @@ baseline_model = BehaveFormer(8, 36, 50, 100, 64, 20, 4, 10, 6, 10, "acc_gyr_mag
 baseline_model.load_state_dict(torch.load(baseline_path, map_location="cpu", weights_only=True))
 baseline_model.to(device).eval()
 
+for m in baseline_model.modules():
+    if hasattr(m, "positions"):
+        m.positions = m.positions.to(device)
+    if hasattr(m, "mu"):
+        m.mu = m.mu.to(device)
+    if hasattr(m, "sigma"):
+        m.sigma = m.sigma.to(device)
+
 # ----- Pruned -----
 model = BehaveFormer(8, 36, 50, 100, 64, 20, 4, 10, 6, 10, "acc_gyr_mag")
 
