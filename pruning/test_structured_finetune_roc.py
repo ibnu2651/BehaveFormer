@@ -115,8 +115,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument("config", type=str, help="config")
 args = parser.parse_args()
 
-model_path = f"/home/i/ibnu2651/BehaveFormer/pruning/prune_structured_{args.config}_last.pt"
-# model_path = f"/home/i/ibnu2651/BehaveFormer/work_dirs/humi_scroll50down_imu100all_epoch500_enroll3_b128/20231026_155303/best_models/epoch_210_eer_2.60817307692308.pt"
+# model_path = f"/home/i/ibnu2651/BehaveFormer/pruning/prune_structured_{args.config}_last.pt"
+model_path = f"/home/i/ibnu2651/BehaveFormer/work_dirs/humi_scroll50down_imu100all_epoch500_enroll3_b128/20231026_155303/best_models/epoch_210_eer_2.60817307692308.pt"
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
