@@ -267,13 +267,13 @@ plt.figure(figsize=(6,6))
 
 plt.plot(fpr_b, tpr_b, color="red", label=f"Baseline (AUC={auc_b:.4f})")
 plt.plot(fpr_p, tpr_p, color="blue", label=f"Pareto-optimal (AUC={auc_p:.4f})")
-plt.plot(fpr_o, tpr_o, color="green", label=f"Pareto-optimal with quantisation (AUC={auc_o:.4f})")
+plt.plot(fpr_o, tpr_o, color="green", label=f"Pareto-optimal with\nquantisation (AUC={auc_o:.4f})")
 
 plt.plot([0,1],[0,1],"k--", label="Random")
 
 plt.xlabel("False Positive Rate")
 plt.ylabel("True Positive Rate")
-plt.title(f"ROC Comparison ({args.config})")
+plt.title(f"ROC Comparison")
 plt.legend(loc="lower right")
 plt.grid(True)
 
