@@ -4,9 +4,11 @@ sys.path.append("..")
 import torch
 import numpy as np
 import onnxruntime as ort
+from model.behaveformer import BehaveFormer
 from model.dataset import HUMITestDataset
 import os
 from torch.utils.data import DataLoader
+from torch import nn
 from evaluation.metrics import Metric
 import argparse
 
@@ -30,23 +32,44 @@ def get_periods(user_id, num_enroll_sess, num_verify_sess=None):
     periods = []
 
     for j in range(num_verify_sess):
-        periods.append(
-            get_window_time_humi(test_dataset.data[user_id][num_enroll_sess + j])
-        )
+        periods.append(get_window_time_humi(test_dataset.data[user_id][num_enroll_sess + j]))
 
     for i in range(len(test_dataset.data)):
         if i != user_id:
             for j in range(num_verify_sess):
-                periods.append(
-                    get_window_time_humi(test_dataset.data[i][num_enroll_sess + j])
-                )
+                periods.append(get_window_time_humi(test_dataset.data[i][num_enroll_sess + j]))
 
     return periods
 
 
-# =========================
-# Argument parser (MATCHES YOUR FIRST SCRIPT)
-# =========================
+@torch.no_grad()
+def prune_two_linear_mlp(seq: nn.Sequential, new_hidden: int):
+    fc1: nn.Linear = seq[0]
+    fc2: nn.Linear = seq[3]
+
+    importance = fc2.weight.abs().sum(dim=0)
+    keep = torch.topk(importance, k=new_hidden, largest=True).indices.sort().values
+
+    new_fc1 = nn.Linear(fc1.in_features, new_hidden, bias=(fc1.bias is not None))
+    new_fc2 = nn.Linear(new_hidden, fc2.out_features, bias=(fc2.bias is not None))
+
+    new_fc1.weight.copy_(fc1.weight[keep, :])
+    if fc1.bias is not None:
+        new_fc1.bias.copy_(fc1.bias[keep])
+
+    new_fc2.weight.copy_(fc2.weight[:, keep])
+    if fc2.bias is not None:
+        new_fc2.bias.copy_(fc2.bias)
+
+    seq[0] = new_fc1
+    seq[3] = new_fc2
+
+
+def keep_first_n_encoder_layers(transformer_module, n: int):
+    transformer_module.encoder.layers = nn.ModuleList(
+        list(transformer_module.encoder.layers[:n])
+    )
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument("config", type=str, help="config")
@@ -54,18 +77,54 @@ args = parser.parse_args()
 
 
 # =========================
-# Model path using config
+# Paths
 # =========================
 
-model_int8_path = f"/home/i/ibnu2651/BehaveFormer/pruning/prune_structured_{args.config}_last_int8.onnx"
+pt_model_path = f"/home/i/ibnu2651/BehaveFormer/pruning/prune_structured_{args.config}_last.pt"
+onnx_model_path = f"/home/i/ibnu2651/BehaveFormer/pruning/prune_structured_{args.config}_last_int8.onnx"
 
 
 # =========================
-# ONNX Runtime
+# Load PyTorch model
+# =========================
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+new_imu_hidden = 200
+new_behave_hidden = 40
+new_num_layers_behave = 3
+new_num_layers_imu = 3
+
+model = BehaveFormer(8, 36, 50, 100, 64, 20, 4, 10, 6, 10, "acc_gyr_mag")
+
+prune_two_linear_mlp(model.linear_imu, new_hidden=new_imu_hidden)
+prune_two_linear_mlp(model.linear_behave, new_hidden=new_behave_hidden)
+
+keep_first_n_encoder_layers(model.behave_transformer, new_num_layers_behave)
+keep_first_n_encoder_layers(model.imu_transformer, new_num_layers_imu)
+
+model.load_state_dict(
+    torch.load(pt_model_path, map_location=torch.device("cpu"), weights_only=True)
+)
+model.to(device)
+
+for m in model.modules():
+    if hasattr(m, "positions"):
+        m.positions = m.positions.to(device)
+    if hasattr(m, "mu"):
+        m.mu = m.mu.to(device)
+    if hasattr(m, "sigma"):
+        m.sigma = m.sigma.to(device)
+
+model.eval()
+
+
+# =========================
+# Load ONNX model
 # =========================
 
 ort_session = ort.InferenceSession(
-    model_int8_path,
+    onnx_model_path,
     providers=["CPUExecutionProvider"]
 )
 
@@ -87,35 +146,43 @@ test_dataloader = DataLoader(test_dataset, batch_size=16)
 
 
 # =========================
-# Run ONNX inference
+# Inference
 # =========================
 
+pt_outputs = []
 onnx_outputs = []
 
-for batch in test_dataloader:
-    behave_inputs, imu_inputs = batch
+with torch.no_grad():
+    for batch in test_dataloader:
+        behave_inputs, imu_inputs = batch
 
-    behave_np = behave_inputs.detach().cpu().numpy().astype(np.float32)
-    imu_np = imu_inputs.detach().cpu().numpy().astype(np.float32)
+        behave_inputs = behave_inputs.to(device).float()
+        imu_inputs = imu_inputs.to(device).float()
 
-    ort_inputs = {
-        ort_session.get_inputs()[0].name: behave_np,
-        ort_session.get_inputs()[1].name: imu_np,
-    }
+        pt_out = model((behave_inputs, imu_inputs))
+        pt_outputs.append(pt_out.cpu())
 
-    out_onnx = ort_session.run(None, ort_inputs)[0]
-    onnx_outputs.append(out_onnx)
+        behave_np = behave_inputs.detach().cpu().numpy().astype(np.float32)
+        imu_np = imu_inputs.detach().cpu().numpy().astype(np.float32)
+
+        ort_inputs = {
+            ort_session.get_inputs()[0].name: behave_np,
+            ort_session.get_inputs()[1].name: imu_np,
+        }
+
+        onnx_out = ort_session.run(None, ort_inputs)[0]
+        onnx_outputs.append(onnx_out)
 
 
-onnx_outputs = np.concatenate(onnx_outputs, axis=0)
-onnx_outputs = torch.from_numpy(onnx_outputs)
+pt_outputs = torch.cat(pt_outputs, dim=0)
+onnx_outputs = torch.from_numpy(np.concatenate(onnx_outputs, axis=0))
 
-print("ONNX outputs:", onnx_outputs.shape)
-
-
-# =========================
-# Reshape outputs
-# =========================
+pt_outputs = pt_outputs.view(
+    test_dataset.num_users,
+    test_dataset.num_sessions,
+    test_dataset.num_seqs,
+    64
+)
 
 onnx_outputs = onnx_outputs.view(
     test_dataset.num_users,
@@ -126,92 +193,100 @@ onnx_outputs = onnx_outputs.view(
 
 
 # =========================
-# Evaluation
+# Evaluation + ROC data
 # =========================
 
 num_enroll_sessions = 3
 num_verify_sessions = 2
 
+pt_acc = []
 onnx_acc = []
-onnx_usability = []
-onnx_tcr = []
-onnx_fawi = []
-onnx_frwi = []
 
-all_scores = []
-all_labels = []
+pt_scores_all = []
+pt_labels_all = []
 
-for i in range(onnx_outputs.shape[0]):
-    all_ver_embeddings = torch.cat([
+onnx_scores_all = []
+onnx_labels_all = []
+
+for i in range(pt_outputs.shape[0]):
+    labels = torch.tensor(
+        [1] * num_verify_sessions +
+        [0] * (pt_outputs.shape[0] - 1) * num_verify_sessions
+    )
+
+    # ----- PyTorch -----
+    pt_ver_embeddings = torch.cat([
+        pt_outputs[i, num_enroll_sessions:],
+        torch.flatten(pt_outputs[:i, num_enroll_sessions:], start_dim=0, end_dim=1),
+        torch.flatten(pt_outputs[i + 1:, num_enroll_sessions:], start_dim=0, end_dim=1)
+    ], dim=0)
+
+    pt_scores = Metric.cal_session_distance_fixed_sessions(
+        pt_ver_embeddings,
+        pt_outputs[i, :num_enroll_sessions]
+    )
+
+    pt_scores_all.extend((-pt_scores).detach().cpu().numpy())
+    pt_labels_all.extend(labels.detach().cpu().numpy())
+
+    pt_acc_i, _ = Metric.eer_compute(
+        pt_scores[:num_verify_sessions],
+        pt_scores[num_verify_sessions:]
+    )
+    pt_acc.append(pt_acc_i)
+
+    # ----- ONNX -----
+    onnx_ver_embeddings = torch.cat([
         onnx_outputs[i, num_enroll_sessions:],
         torch.flatten(onnx_outputs[:i, num_enroll_sessions:], start_dim=0, end_dim=1),
         torch.flatten(onnx_outputs[i + 1:, num_enroll_sessions:], start_dim=0, end_dim=1)
     ], dim=0)
 
-    scores = Metric.cal_session_distance_fixed_sessions(
-        all_ver_embeddings,
+    onnx_scores = Metric.cal_session_distance_fixed_sessions(
+        onnx_ver_embeddings,
         onnx_outputs[i, :num_enroll_sessions]
     )
 
-    periods = get_periods(i, num_enroll_sessions, num_verify_sessions)
+    onnx_scores_all.extend((-onnx_scores).detach().cpu().numpy())
+    onnx_labels_all.extend(labels.detach().cpu().numpy())
 
-    labels = torch.tensor(
-        [1] * num_verify_sessions +
-        [0] * (onnx_outputs.shape[0] - 1) * num_verify_sessions
+    onnx_acc_i, _ = Metric.eer_compute(
+        onnx_scores[:num_verify_sessions],
+        onnx_scores[num_verify_sessions:]
     )
-
-    # IMPORTANT: invert distance for ROC
-    all_scores.extend((-scores).detach().cpu().numpy())
-    all_labels.extend(labels.detach().cpu().numpy())
-
-    acc, threshold = Metric.eer_compute(
-        scores[:num_verify_sessions],
-        scores[num_verify_sessions:]
-    )
-
-    usability = Metric.calculate_usability(scores, threshold, periods, labels)
-    tcr = Metric.calculate_TCR(scores, threshold, periods, labels)
-    frwi = Metric.calculate_FRWI(scores, threshold, periods, labels)
-    fawi = Metric.calculate_FAWI(scores, threshold, periods, labels)
-
-    onnx_acc.append(acc)
-    onnx_usability.append(usability)
-    onnx_tcr.append(tcr)
-    onnx_fawi.append(fawi)
-    onnx_frwi.append(frwi)
+    onnx_acc.append(onnx_acc_i)
 
 
-print(
-    "ONNX\nEER:",
-    100 - np.mean(onnx_acc, axis=0),
-    "Usability:", np.mean(onnx_usability, axis=0),
-    "TCR:", np.mean(onnx_tcr, axis=0),
-    "FRWI:", np.mean(onnx_frwi, axis=0),
-    "FAWI:", np.mean(onnx_fawi, axis=0)
-)
+print("PyTorch EER:", 100 - np.mean(pt_acc, axis=0))
+print("ONNX EER:", 100 - np.mean(onnx_acc, axis=0))
 
 
 # =========================
-# ROC Curve
+# Combined ROC Plot
 # =========================
 
-all_scores = np.array(all_scores)
-all_labels = np.array(all_labels)
+pt_fpr, pt_tpr, _ = roc_curve(np.array(pt_labels_all), np.array(pt_scores_all))
+pt_auc = auc(pt_fpr, pt_tpr)
 
-fpr, tpr, thresholds = roc_curve(all_labels, all_scores)
-roc_auc = auc(fpr, tpr)
+onnx_fpr, onnx_tpr, _ = roc_curve(np.array(onnx_labels_all), np.array(onnx_scores_all))
+onnx_auc = auc(onnx_fpr, onnx_tpr)
 
 plt.figure(figsize=(6, 6))
-plt.plot(fpr, tpr, label=f"ROC (AUC = {roc_auc:.4f})")
-plt.plot([0, 1], [0, 1], linestyle="--", label="Random")
+
+plt.plot(pt_fpr, pt_tpr, color="blue", label=f"Without quantisation (AUC = {pt_auc:.4f})")
+plt.plot(onnx_fpr, onnx_tpr, color="red", label=f"With quantisation (AUC = {onnx_auc:.4f})")
+
+plt.plot([0, 1], [0, 1], linestyle="--", label="Random classifier")
+
 plt.xlabel("False Positive Rate")
 plt.ylabel("True Positive Rate")
-plt.title(f"ROC Curve (final)")
+plt.title(f"ROC Curve (Pareto-optimal)")
 plt.legend(loc="lower right")
 plt.grid(True)
 plt.tight_layout()
 
-plt.savefig(f"onnx_roc_{args.config}.png", dpi=300)
+plt.savefig(f"roc_comparison_{args.config}.png", dpi=300)
 plt.show()
 
-print("ROC AUC:", roc_auc)
+print("PyTorch ROC AUC:", pt_auc)
+print("ONNX ROC AUC:", onnx_auc)
